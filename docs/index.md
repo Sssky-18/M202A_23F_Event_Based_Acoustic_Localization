@@ -13,4 +13,4 @@ Provide a brief overview of the project objhectives, approach, and results.
 * [Proposal](proposal.md)
 * [Midterm Checkpoint Presentation Slides](http://)
 * [Final Presentation Slides](http://)
-* [Final Report](report)
+* [Final Report](report.md)
