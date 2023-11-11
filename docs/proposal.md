@@ -20,7 +20,7 @@ We want to use a bunch of independent devices to infer touch location on a large
 
 ## 4. Potential Impact
 
-If the project is successful, what difference will it make, both technically and broadly?
+We will have better understanding in time synchronization (Haochen's part) and localization (Tianyuan's part). Also this may result in a working app on smart phones that can turn any surface into a touch sensor.
 
 ## 5. Challenges
 
