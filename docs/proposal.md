@@ -28,7 +28,9 @@ The audio kit we sourced uses MEMS microphone and small speaker. This may impair
 
 ## 6. Requirements for Success
 
-What skills and resources are necessary to perform the project?
+For the hardware development, we need to plan well to allow stable capture of sound to ensure correct timestamping. This requires skills in realtime system developing.
+
+For the software part, we need to design a protocol to allow devices to sync with each other. We also need to implement the algorithm to solve for the location.
 
 ## 7. Metrics of Success
 
