@@ -6,7 +6,9 @@ A flat surface can be more than just a surface. You can project onto it into a d
 
 ## 2. State of the Art & Its Limitations
 
-How is it done today, and what are the limits of current practice?
+For implementing touch interaction on large surface, several ways are avaible and some of them are already commercially available. One way is to use a camera to track the touch event. However, it requires a camera to be placed above the surface and the camera needs to be calibrated. Also privacy can be harmed. Another way is to use a capacitive touch sensor. This is no different from any small touchscreen. But in the case of large surface, the cost and power consumption of the sensor can be high. Also, the sensor needs to be manufactured to adapt to the size. It is not plug and play. Another way is to use infrared pairs. By looking at which part has been blocked, we can infer the touch event. However, this method requires bulky hardware.
+
+
 
 ## 3. Novelty & Rationale
 
