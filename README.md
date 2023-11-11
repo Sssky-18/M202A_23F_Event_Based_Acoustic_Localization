@@ -1,10 +1,10 @@
-# ecem202a_project
-This is repository template for UCLA ECEM202A / CSM213A projects.
+# Event Based Acoustic Localization
+How well can we localize an event using only the time difference of arrival (TDOA) of the event's acoustic signal at a bunch of microphones?
 
-Use the folders as follows:
+# Contents
 
-* doc/ for website content
-* software/ for code used in your project
-* data/ for data data used in your project
-
-You may add additional folders as necessary.
+* [Index](docs/index.md)
+* [Proposal](docs/proposal.md)
+* [Midterm Checkpoint Presentation Slides](http://)
+* [Final Presentation Slides](http://)
+* [Final Report](report.md)
