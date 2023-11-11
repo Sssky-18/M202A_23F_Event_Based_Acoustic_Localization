@@ -34,11 +34,20 @@ For the software part, we need to design a protocol to allow devices to sync wit
 
 ## 7. Metrics of Success
 
-What are metrics by which you would check for success?
+We aim to get a working demo to present. On the demo we can measure accuracy. If that failed, we fallback to demo timestamping same acoustic event on different devices.
 
 ## 8. Execution Plan
 
-Describe the key tasks in executing your project, and in case of team project describe how will you partition the tasks.
+Haochen Zhao will be focusing on the hardware and protocol part. Tianyuan Zhang will be focusing on the algorithm and github part. We will work together on the demo.
+
+Key tasks:
+* Haochen Zhao: audio capture routine
+* Haochen Zhao: audio playback routine (for sync using sound)
+* Haochen Zhao: acoutic event timestamping
+* Haochen Zhao: protocol design
+* Tianyuan Zhang: algorithm design
+* Tianyuan Zhang: github repo
+* Tianyuan Zhang: host software for data processing
 
 ## 9. Related Work
 
