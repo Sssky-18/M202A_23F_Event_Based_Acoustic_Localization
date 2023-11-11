@@ -24,7 +24,7 @@ We will have better understanding in time synchronization (Haochen's part) and l
 
 ## 5. Challenges
 
-What are the challenges and risks?
+The audio kit we sourced uses MEMS microphone and small speaker. This may impair the ability to capture event and the ability to propagate information. If this is indeed an issue, we plan to make everything louder.
 
 ## 6. Requirements for Success
 
@@ -53,5 +53,10 @@ List datasets that you have identified and plan to use. Provide references (with
 List softwate that you have identified and plan to use. Provide references (with full citation in the References section below).
 
 ## 10. References
+
+* [Acustico: Surface Tap Detection and Localization using Wrist-based Acoustic TDOA Sensing](https://dl.acm.org/doi/10.1145/3379337.3415901)
+* [ALTo: Ad Hoc High-Accuracy Touch Interaction Using Acoustic Localization](https://arxiv.org/pdf/2108.06837.pdf)
+* [Toffee: enabling ad hoc, around-device interaction with acoustic time-of-arrival correlation](https://dl.acm.org/doi/10.1145/2628363.2628383)
+
 
 List references correspondign to citations in your text above. For papers please include full citation and URL. For datasets and software include name and URL.
