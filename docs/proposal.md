@@ -16,7 +16,7 @@ In ALTo, the time difference of arrival of the event's acoustic signal at a bunc
 
 ## 3. Novelty & Rationale
 
-What is new in your approach and why do you think it will be successful?
+We want to use a bunch of independent devices to infer touch location on a large surface. We want to design a protocol between devices to allow them localize the event. We build on some previous works with centralized way of doing this. We do not foresee any theoretical challenge in doing this. But it remains an interesting topic how to do it in an efficient way.
 
 ## 4. Potential Impact
 
