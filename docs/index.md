@@ -4,8 +4,8 @@ This project employs the ALTo (Acoustic Localized Touch) approach to ascertain e
 
 # Team
 
-* Name of team member \#1 **Tianyuan Nan**
-* Name of team member \#2 **Haochen Zhao**
+* Name of team member \#1 **Haochen Zhao**
+* Name of team member \#2 **Tianyuan Nan**
 
 
 # Required Submissions
