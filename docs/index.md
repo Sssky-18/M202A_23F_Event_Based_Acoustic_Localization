@@ -4,8 +4,8 @@ Provide a brief overview of the project objhectives, approach, and results.
 
 # Team
 
-* Name of team member \#1 Tianyuan Nan
-* Name of team member \#2 Haochen Zhao
+* Name of team member \#1 **Tianyuan Nan**
+* Name of team member \#2 **Haochen Zhao**
 
 
 # Required Submissions
