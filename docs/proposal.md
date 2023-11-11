@@ -38,16 +38,16 @@ We aim to get a working demo to present. On the demo we can measure accuracy. If
 
 ## 8. Execution Plan
 
-Haochen Zhao will be focusing on the hardware and protocol part. Tianyuan Zhang will be focusing on the algorithm and github part. We will work together on the demo.
+Haochen Zhao will be focusing on the hardware and protocol part. Tianyuan Nan will be focusing on the algorithm and github part. We will work together on the demo.
 
 Key tasks:
 * Haochen Zhao: audio capture routine
 * Haochen Zhao: audio playback routine (for sync using sound)
 * Haochen Zhao: acoutic event timestamping
 * Haochen Zhao: protocol design
-* Tianyuan Zhang: algorithm design
-* Tianyuan Zhang: github repo
-* Tianyuan Zhang: host software for data processing
+* Tianyuan Nan: algorithm design
+* Tianyuan Nan: github repo
+* Tianyuan Nan: host software for data processing
 
 ## 9. Related Work
 
