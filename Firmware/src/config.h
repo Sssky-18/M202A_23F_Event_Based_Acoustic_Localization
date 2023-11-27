@@ -1,6 +1,7 @@
 
-#undef STANDARD_BACKPLANE
-#define EXTERNAL_DAC_BACKPLANE
+#ifndef CONFIG_H // include guard
+#define CONFIG_H
+#include "device.h"
 #define MIC_DATA            2
 #define MIC_CLOCK           0
 #define i2sPort_speaker  I2S_NUM_1
@@ -23,5 +24,4 @@
 #define read_chunk_size  2500          // about 50ms of data
 #define DATA_SIZE_MIC  sampleRate_mic / 5 // 200ms of data
 
-
-#include <LilyGoWatch.h>
+#endif
