@@ -1,34 +1,27 @@
-// => Hardware select
-// #define LILYGO_WATCH_2019_WITH_TOUCH     // To use T-Watch2019 with touchscreen, please uncomment this line
-// #define LILYGO_WATCH_2019_NO_TOUCH       // To use T-Watch2019 Not touchscreen , please uncomment this line
-// #define LILYGO_WATCH_BLOCK               // To use T-Watch Block , please uncomment this line
-// #define LILYGO_WATCH_BLOCK_V1            // To use T-Watch Block V1 , please uncomment this line
-// #define LILYGO_WATCH_2020_V1             // To use T-Watch2020 V1 , please uncomment this line
-// #define LILYGO_WATCH_2020_V3             // To use T-Watch2020 V3, please uncomment this line
 
-
-
-// Except T-Watch2020, other versions need to be selected according to the actual situation
-#if  !defined(LILYGO_WATCH_2020_V1) && !defined(LILYGO_WATCH_2020_V3)
-
-// T-Watch comes with the default backplane, it uses internal DAC
-#define STANDARD_BACKPLANE
-
-// Such as MAX98357A, PCM5102 external DAC backplane
-// #define EXTERNAL_DAC_BACKPLANE
-
-#else
-// T-Watch2020 uses external DAC
 #undef STANDARD_BACKPLANE
 #define EXTERNAL_DAC_BACKPLANE
-
-#endif
-
-
-// #define LILYGO_WATCH_LVGL 
-// TWATCH 2020 V3 PDM microphone pin
 #define MIC_DATA            2
 #define MIC_CLOCK           0
+#define i2sPort_speaker  I2S_NUM_1
+#define i2sPort_mic  I2S_NUM_0
+#define i2sBckPin TWATCH_DAC_IIS_BCK   // BCLK pin
+#define i2sWsPin  TWATCH_DAC_IIS_WS     // WCLK pin
+#define i2sDoutPin TWATCH_DAC_IIS_DOUT // DOUT pin
+
+#define speaker_duration_ms 100
+#define sampleRate_speaker  44100
+#define bufferSize_speaker  (sampleRate_speaker * speaker_duration_ms / 1000)
+#define START_FREQ 2000.0
+#define END_FREQ 8000.0
+#define chirpRate ((END_FREQ - START_FREQ) / (speaker_duration_ms / 1000.0))
+
+#define sampleRate_mic  44100
+#define BUFFER_TIME_MIC_MS  100
+#define BUFFER_SIZE_MIC  (2 * (sampleRate_mic * BUFFER_TIME_MIC_MS / 1000))
+
+#define read_chunk_size  2500          // about 50ms of data
+#define DATA_SIZE_MIC  sampleRate_mic / 5 // 200ms of data
 
 
 #include <LilyGoWatch.h>
