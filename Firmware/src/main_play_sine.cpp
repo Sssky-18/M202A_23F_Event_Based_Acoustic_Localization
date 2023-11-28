@@ -26,8 +26,7 @@ void MicrophoneTask(void *pvParameters)
   for (;;)
   {
     before_read_time = esp_timer_get_time();
-    i2s_read(I2S_NUM_0, (char *)buffer_mic, read_chunk_size * 2, &read_len, portMAX_DELAY);
-
+    i2s_read(I2S_NUM_0, (char *)byte_buffer_mic, read_chunk_size_byte * 2, &read_len, portMAX_DELAY);
     for (int i = 0; i < read_len / 2; i++)
     {
       val16 = buffer_mic[i * 2] + buffer_mic[i * 2 + 1] * 256;
@@ -66,8 +65,7 @@ void SerialTransmissionTask(void *pvParameters)
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    // Send buffer_mic through serial
-    // Serial.write(buffer_mic, read_chunk_size * 2);
+    // Serial.write(byte_buffer_mic, read_chunk_size_byte * 2);
   }
 }
 
