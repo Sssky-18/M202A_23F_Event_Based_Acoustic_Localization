@@ -179,7 +179,7 @@ void setup()
   );
   xTaskCreatePinnedToCore(MicrophoneTask, "MicrophoneTask", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(micTasksHub, "micTasksHub", 10000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(micTimestampTask, "micTimestampTask", 10000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(micTimestampTaskComplete, "micTimestampTask", 10000, NULL, 1, NULL, 1);
   xTaskCreate(SerialTransmissionTask, "SerialTransmissionTask", 10000, NULL, 1, NULL);
 }
 
