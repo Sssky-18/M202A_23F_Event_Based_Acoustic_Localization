@@ -28,21 +28,18 @@ uint64_t eventTimeStamp = 0;
 void MicrophoneTask(void *pvParameters)
 {
   int16_t val16;
-  data_mic_cyclic = new int16_t[DATA_SIZE_MIC];
+  data_mic_cyclic = new int16_t[DATA_SIZE_MIC]{0};
   int64_t current_time, before_read_time, time_offset;
   uint32_t read_length_offset = 0;
-  size_t read_len = 0;
+  size_t read_len;
   uint16_t new_read_max_abs = 0;
-  size_t argmax=0;
+  size_t argmax = 0;
   bool bootstrap_complete = false;
   for (;;)
   {
     before_read_time = esp_timer_get_time();
     new_read_max_abs = 0;
     i2s_read(I2S_NUM_0, (char *)byte_buffer_mic, read_chunk_size_byte * 2, &read_len, portMAX_DELAY);
-    #ifndef DEBUG_OUTPUT
-    Serial.println("Read Complete Once");
-    #endif    
     xSemaphoreTake(sem_mic, portMAX_DELAY);
     for (int i = 0; i < read_len / 2; i++)
     {
@@ -50,7 +47,7 @@ void MicrophoneTask(void *pvParameters)
       if (ABS(val16) > new_read_max_abs)
       {
         new_read_max_abs = ABS(val16);
-        argmax=i;
+        argmax = i;
       }
       data_energy_sum += val16 * val16;
       data_energy_sum -= data_mic_cyclic[data_mic_idx] * data_mic_cyclic[data_mic_idx];
@@ -73,8 +70,8 @@ void MicrophoneTask(void *pvParameters)
     }
     else // start processing
     {
-      if ((uint64_t)new_read_max_abs * new_read_max_abs * read_len / 2 >= data_energy_sum * noise_reject_ratio) // interesting event detected
-      
+      // Serial.printf("%lld,%f\n",(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC, data_energy_sum * noise_reject_ratio);
+      if ((float)(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC >= data_energy_sum * noise_reject_ratio) // interesting event detected
         if (!interesting_task_cd)
         {
           interesting_task_detected = true;
@@ -87,7 +84,7 @@ void MicrophoneTask(void *pvParameters)
                         (float)data_energy_sum / DATA_SIZE_MIC);
 #endif
 #ifdef USE_NAIVE_TIMESTAMP
-          eventTimeStamp = total_read_length+argmax;
+          eventTimeStamp = total_read_length + argmax;
           eventTimeStampAvailable = true;
           #endif
         }
