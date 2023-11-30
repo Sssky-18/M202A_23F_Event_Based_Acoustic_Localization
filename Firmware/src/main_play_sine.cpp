@@ -8,13 +8,21 @@
 TTGOClass *ttgo;
 int16_t buffer_speaker[bufferSize_speaker];
 
-xTaskHandle micSerialSendTaskHandle,micTimestampTaskHandle,speakerPlaySyncTaskHandle,micTasksHandle;
+xTaskHandle micSerialSendTaskHandle, micTimestampTaskHandle, speakerPlaySyncTaskHandle, micTasksHandle;
 int16_t *data_mic_cyclic;
 uint16_t data_mic_idx = 0;
-uint64_t total_read_length = 0; 
+uint64_t total_read_length = 0;
 
-auto sem_mic=xSemaphoreCreateMutex();
+const float noise_reject_ratio = 1.5;
+uint64_t data_energy_sum = 0, data_energy_avg = 0;
 
+auto sem_mic = xSemaphoreCreateMutex();
+
+bool interesting_task_cd = true, interesting_task_detected = false;
+TimerHandle_t reset_interesting_task_cooldown_timer;
+
+bool eventTimeStampAvailable = false;
+uint64_t eventTimeStamp = 0;
 
 void MicrophoneTask(void *pvParameters)
 {
@@ -93,7 +101,6 @@ void micTasksHub(void *pvParameters)
     xTaskNotify(micSerialSendTaskHandle, 0, eNoAction);
     xTaskNotify(micTimestampTaskHandle, 0, eNoAction);
   }
-
 }
 
 void SerialTransmissionTask(void *pvParameters)
@@ -131,7 +138,7 @@ void micTimestampTaskComplete(void *pvParameters)
       else // start processing
       {
         flag = false;
-    xSemaphoreTake(sem_mic, portMAX_DELAY);
+        xSemaphoreTake(sem_mic, portMAX_DELAY);
         if (data_mic_idx >= internal_buffer_size)
         {
           // Wrap back to the beginning of the internal buffer
@@ -145,22 +152,24 @@ void micTimestampTaskComplete(void *pvParameters)
           memcpy(internal_buffer, &data_mic_cyclic[0], data_mic_idx * sizeof(int16_t));
           memcpy(&internal_buffer[data_mic_idx], &data_mic_cyclic[DATA_SIZE_MIC - elements_before_idx], elements_before_idx * sizeof(int16_t));
         }
-    xSemaphoreGive(sem_mic);
+        xSemaphoreGive(sem_mic);
       }
       continue;
     }
   }
 }
 
-void create_semaphores(void)
+void create_event_handles(void)
 {
   xSemaphoreGive(sem_mic);
+  reset_interesting_task_cooldown_timer = xTimerCreate("reset_interesting_task_cooldown_timer", pdMS_TO_TICKS(100), pdFALSE, (void *)0, [](TimerHandle_t xTimer)
+                                                       { interesting_task_cd = false; });
 }
 
 void setup()
 {
   esp_timer_init();
-  create_semaphores();
+  create_event_handles();
   Serial.begin(921600);
   ttgo = TTGOClass::getWatch();
   ttgo->begin();
@@ -168,7 +177,7 @@ void setup()
   setup_gui();
   setup_speaker();
   setup_mic();
-    xTaskCreatePinnedToCore(
+  xTaskCreatePinnedToCore(
       SerialTransmissionTask,   // Task function
       "SerialTransmissionTask", // Name of the task
       10000,                    // Stack size in words
@@ -186,9 +195,9 @@ void setup()
 void loop()
 {
   size_t bytesWritten = 0;
-// #ifdef DEBUG_OUTPUT
-//   i2s_write(i2sPort_speaker, (const char *)buffer_speaker, bufferSize_speaker * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
-// #endif
+  // #ifdef DEBUG_OUTPUT
+  //   i2s_write(i2sPort_speaker, (const char *)buffer_speaker, bufferSize_speaker * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
+  // #endif
 
   vTaskDelay(pdMS_TO_TICKS(2000));
 }
