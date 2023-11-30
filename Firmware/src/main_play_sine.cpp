@@ -87,14 +87,46 @@ void SerialTransmissionTask(void *pvParameters)
   }
 }
 
-void micTimestampTask(void *pvParameters)
+
+
+
+void micTimestampTaskComplete(void *pvParameters)
 {
+  bool flag = false;
+  const static size_t internal_buffer_size = read_chunk_size_byte / 2 * 3;
+  int16_t internal_buffer[internal_buffer_size]; // exactly 3 periods of reading, roughly 60ms
   micTimestampTaskHandle = xTaskGetCurrentTaskHandle();
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    if (!(interesting_task_detected || flag))
+    {
+      if (interesting_task_detected) // start delay
+      {
+        flag = true;
+        interesting_task_detected = false;
+      }
+      else // start processing
+      {
+        flag = false;
     xSemaphoreTake(sem_mic, portMAX_DELAY);
+        if (data_mic_idx >= internal_buffer_size)
+        {
+          // Wrap back to the beginning of the internal buffer
+          size_t remaining_elements = internal_buffer_size - data_mic_idx;
+          memcpy(internal_buffer, &data_mic_cyclic[data_mic_idx - internal_buffer_size], remaining_elements * sizeof(int16_t));
+          memcpy(&internal_buffer[remaining_elements], data_mic_cyclic, (internal_buffer_size - remaining_elements) * sizeof(int16_t));
+        }
+        else
+        {
+          size_t elements_before_idx = internal_buffer_size - data_mic_idx;
+          memcpy(internal_buffer, &data_mic_cyclic[0], data_mic_idx * sizeof(int16_t));
+          memcpy(&internal_buffer[data_mic_idx], &data_mic_cyclic[DATA_SIZE_MIC - elements_before_idx], elements_before_idx * sizeof(int16_t));
+        }
     xSemaphoreGive(sem_mic);
+      }
+      continue;
+    }
   }
 }
 
