@@ -4,11 +4,12 @@
 #include <dsps_conv.h>
 #include <freertos/FreeRTOS.h>
 #include "init.h"
+#include "esp_log.h"
 
 TTGOClass *ttgo;
 int16_t buffer_speaker[bufferSize_speaker];
 
-xTaskHandle micSerialSendTaskHandle, micTimestampTaskHandle, speakerPlaySyncTaskHandle, micTasksHandle;
+xTaskHandle micSerialSendTaskHandle, micTimestampTaskHandle, speakerPlaySyncTaskHandle, micTasksHandle, micPostTimestampTaskHandle;
 int16_t *data_mic_cyclic;
 uint8_t *byte_buffer_mic = new uint8_t[BUFFER_SIZE_MIC];
 uint16_t data_mic_idx = 0;
@@ -136,12 +137,31 @@ void micTimestampTaskNaive(void *pvParameters)
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    if (interesting_task_detected)  // not necessary under this context, but this flag is important for micTimestampTaskComplete
+    if (interesting_task_detected) // not necessary under this context, but this flag is important for micTimestampTaskComplete
     {
-      interesting_task_detected=false;
+      interesting_task_detected = false;
+      xTaskNotify(micPostTimestampTaskHandle, 0, eNoAction);
     }
   }
+}
 
+void micPostTimestampTask(void *pvParameters)
+{
+  uint64_t event_timestamp_processing = 0; // buffer this in case of it being overwritten
+  micPostTimestampTaskHandle = xTaskGetCurrentTaskHandle();
+  for (;;)
+  {
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    if (eventTimeStampAvailable) // new event timestamp available, should always hold true
+    {
+      eventTimeStampAvailable = false;
+      event_timestamp_processing = eventTimeStamp;
+    }
+    else
+    {
+      ESP_LOGE("micPostTimestampTask", "Event timestamp not available when called");
+    }
+  }
 }
 
 void micTimestampTaskComplete(void *pvParameters)
@@ -177,6 +197,8 @@ void micTimestampTaskComplete(void *pvParameters)
           memcpy(internal_buffer, &data_mic_cyclic[0], data_mic_idx * sizeof(int16_t));
           memcpy(&internal_buffer[data_mic_idx], &data_mic_cyclic[DATA_SIZE_MIC - elements_before_idx], elements_before_idx * sizeof(int16_t));
         }
+        // To do: find timestamp
+        xTaskNotify(micPostTimestampTaskHandle, 0, eNoAction);
         xSemaphoreGive(sem_mic);
       }
       continue;
