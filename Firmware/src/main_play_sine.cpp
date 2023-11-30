@@ -10,6 +10,7 @@ int16_t buffer_speaker[bufferSize_speaker];
 
 xTaskHandle micSerialSendTaskHandle, micTimestampTaskHandle, speakerPlaySyncTaskHandle, micTasksHandle;
 int16_t *data_mic_cyclic;
+uint8_t *byte_buffer_mic = new uint8_t[BUFFER_SIZE_MIC];
 uint16_t data_mic_idx = 0;
 uint64_t total_read_length = 0;
 
@@ -28,7 +29,6 @@ void MicrophoneTask(void *pvParameters)
 {
   int16_t val16;
   data_mic_cyclic = new int16_t[DATA_SIZE_MIC];
-  uint8_t *byte_buffer_mic = new uint8_t[BUFFER_SIZE_MIC];
   int64_t current_time, before_read_time, time_offset;
   uint32_t read_length_offset = 0;
   size_t read_len = 0;
@@ -39,6 +39,10 @@ void MicrophoneTask(void *pvParameters)
     before_read_time = esp_timer_get_time();
     new_read_max_abs = 0;
     i2s_read(I2S_NUM_0, (char *)byte_buffer_mic, read_chunk_size_byte * 2, &read_len, portMAX_DELAY);
+    #ifndef DEBUG_OUTPUT
+    Serial.println("Read Complete Once");
+    #endif
+    xTaskNotify(micTasksHandle, 0, eNoAction);
     total_read_length += read_len / 2;
     xSemaphoreTake(sem_mic, portMAX_DELAY);
     for (int i = 0; i < read_len / 2; i++)
@@ -57,12 +61,15 @@ void MicrophoneTask(void *pvParameters)
         data_mic_idx = 0;
       }
     }
-    xTaskNotify(micTasksHandle, 0, eNoAction);
+    xSemaphoreGive(sem_mic);
     if (!bootstrap_complete) // not enough data accumulated
     {
       read_length_offset = total_read_length;
       time_offset = esp_timer_get_time();
       bootstrap_complete = true;
+      #ifndef DEBUG_OUTPUT
+      Serial.println("Bootstrap Complete");
+      #endif
     }
     else // start processing
     {
@@ -72,7 +79,7 @@ void MicrophoneTask(void *pvParameters)
           interesting_task_detected = true;
           interesting_task_cd = true;
           xTimerStart(reset_interesting_task_cooldown_timer, 0);
-#ifdef DEBUG_OUTPUT
+#ifndef DEBUG_OUTPUT
           Serial.printf("Interesting event detected at time: %f, max_abs %d, average %f\n",
                         (current_time - time_offset) / 1e6,
                         new_read_max_abs,
@@ -100,6 +107,7 @@ void micTasksHub(void *pvParameters)
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     xTaskNotify(micSerialSendTaskHandle, 0, eNoAction);
     xTaskNotify(micTimestampTaskHandle, 0, eNoAction);
+    xTaskNotify(micSerialSendTaskHandle, 0, eNoAction);
   }
 }
 
@@ -109,10 +117,11 @@ void SerialTransmissionTask(void *pvParameters)
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    #ifdef DEBUG_OUTPUT
     xSemaphoreTake(sem_mic, portMAX_DELAY);
-    // Send byte_buffer_mic through serial
-    // Serial.write(byte_buffer_mic, read_chunk_size_byte * 2);
+    Serial.write(byte_buffer_mic, read_chunk_size_byte * 2);
     xSemaphoreGive(sem_mic);
+    #endif
   }
 }
 
@@ -199,8 +208,11 @@ void setup()
   );
   xTaskCreatePinnedToCore(MicrophoneTask, "MicrophoneTask", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(micTasksHub, "micTasksHub", 10000, NULL, 1, NULL, 1);
+  #ifndef USE_NAIVE_TIMESTAMP
   xTaskCreatePinnedToCore(micTimestampTaskComplete, "micTimestampTask", 10000, NULL, 1, NULL, 1);
-  xTaskCreate(SerialTransmissionTask, "SerialTransmissionTask", 10000, NULL, 1, NULL);
+  #else
+  xTaskCreatePinnedToCore(micTimestampTaskNaive, "micTimestampTask", 10000, NULL, 1, NULL, 1);
+  #endif
 }
 
 void loop()
