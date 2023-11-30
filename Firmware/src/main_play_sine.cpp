@@ -33,6 +33,7 @@ void MicrophoneTask(void *pvParameters)
   uint32_t read_length_offset = 0;
   size_t read_len = 0;
   uint16_t new_read_max_abs = 0;
+  size_t argmax=0;
   bool bootstrap_complete = false;
   for (;;)
   {
@@ -41,9 +42,7 @@ void MicrophoneTask(void *pvParameters)
     i2s_read(I2S_NUM_0, (char *)byte_buffer_mic, read_chunk_size_byte * 2, &read_len, portMAX_DELAY);
     #ifndef DEBUG_OUTPUT
     Serial.println("Read Complete Once");
-    #endif
-    xTaskNotify(micTasksHandle, 0, eNoAction);
-    total_read_length += read_len / 2;
+    #endif    
     xSemaphoreTake(sem_mic, portMAX_DELAY);
     for (int i = 0; i < read_len / 2; i++)
     {
@@ -51,6 +50,7 @@ void MicrophoneTask(void *pvParameters)
       if (ABS(val16) > new_read_max_abs)
       {
         new_read_max_abs = ABS(val16);
+        argmax=i;
       }
       data_energy_sum += val16 * val16;
       data_energy_sum -= data_mic_cyclic[data_mic_idx] * data_mic_cyclic[data_mic_idx];
@@ -73,8 +73,9 @@ void MicrophoneTask(void *pvParameters)
     }
     else // start processing
     {
-      if (!interesting_task_cd)
-        if ((uint64_t)new_read_max_abs * new_read_max_abs * read_len / 2 >= data_energy_sum * noise_reject_ratio) // interesting event detected
+      if ((uint64_t)new_read_max_abs * new_read_max_abs * read_len / 2 >= data_energy_sum * noise_reject_ratio) // interesting event detected
+      
+        if (!interesting_task_cd)
         {
           interesting_task_detected = true;
           interesting_task_cd = true;
@@ -85,17 +86,24 @@ void MicrophoneTask(void *pvParameters)
                         new_read_max_abs,
                         (float)data_energy_sum / DATA_SIZE_MIC);
 #endif
+#ifdef USE_NAIVE_TIMESTAMP
+          eventTimeStamp = total_read_length+argmax;
+          eventTimeStampAvailable = true;
+          #endif
+        }
+        else
+        {
+          #ifndef DEBUG_OUTPUT
+          Serial.printf("Interesting event detected but on cooldown at time: %f, max_abs %d, average %f\n",
+                        (current_time - time_offset) / 1e6,
+                        new_read_max_abs,
+                        (float)data_energy_sum / DATA_SIZE_MIC);
+          #endif
         }
     }
+    xTaskNotify(micTasksHandle, 0, eNoAction);
     current_time = esp_timer_get_time();
-    // Serial.printf("Total read length %d: at time: %f, newly read %d,average_rate %f, last read used %f, average %f\n",
-    //       total_read_length-read_length_offset,
-    //       (current_time-time_offset) / 1e6,
-    //       read_len,
-    //       (float)(total_read_length-read_length_offset) * 1e6 / (current_time-time_offset),
-    //       (current_time - before_read_time)/1e6,
-    //       (float)data_energy_sum/DATA_SIZE_MIC);
-    // vTaskDelay(pdMS_TO_TICKS(40));
+    total_read_length += read_len / 2;
   }
 }
 
