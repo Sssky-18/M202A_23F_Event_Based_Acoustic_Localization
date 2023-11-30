@@ -116,8 +116,19 @@ void SerialTransmissionTask(void *pvParameters)
   }
 }
 
+void micTimestampTaskNaive(void *pvParameters)
+{
+  micTimestampTaskHandle = xTaskGetCurrentTaskHandle();
+  for (;;)
+  {
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    if (interesting_task_detected)  // not necessary under this context, but this flag is important for micTimestampTaskComplete
+    {
+      interesting_task_detected=false;
+    }
+  }
 
-
+}
 
 void micTimestampTaskComplete(void *pvParameters)
 {
