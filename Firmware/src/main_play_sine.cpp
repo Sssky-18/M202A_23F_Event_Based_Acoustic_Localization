@@ -15,7 +15,7 @@ uint8_t *byte_buffer_mic = new uint8_t[BUFFER_SIZE_MIC];
 uint16_t data_mic_idx = 0;
 uint64_t total_read_length = 0;
 
-const float noise_reject_ratio = 1.5;
+const float noise_reject_ratio = 1.8;
 uint64_t data_energy_sum = 0, data_energy_avg = 0;
 
 auto sem_mic = xSemaphoreCreateMutex();
@@ -65,9 +65,9 @@ void MicrophoneTask(void *pvParameters)
       read_length_offset = total_read_length;
       time_offset = esp_timer_get_time();
       bootstrap_complete = true;
-      #ifndef DEBUG_OUTPUT
+#ifndef DEBUG_OUTPUT
       Serial.println("Bootstrap Complete");
-      #endif
+#endif
     }
     else // start processing
     {
@@ -87,16 +87,16 @@ void MicrophoneTask(void *pvParameters)
 #ifdef USE_NAIVE_TIMESTAMP
           eventTimeStamp = total_read_length + argmax;
           eventTimeStampAvailable = true;
-          #endif
+#endif
         }
         else
         {
-          #ifndef DEBUG_OUTPUT
+#ifndef DEBUG_OUTPUT
           Serial.printf("Interesting event detected but on cooldown at time: %f, max_abs %d, average %f\n",
                         (current_time - time_offset) / 1e6,
                         new_read_max_abs,
                         (float)data_energy_sum / DATA_SIZE_MIC);
-          #endif
+#endif
         }
     }
     xTaskNotify(micTasksHandle, 0, eNoAction);
@@ -123,11 +123,11 @@ void SerialTransmissionTask(void *pvParameters)
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    #ifdef DEBUG_OUTPUT
+#ifdef DEBUG_OUTPUT
     xSemaphoreTake(sem_mic, portMAX_DELAY);
     Serial.write(byte_buffer_mic, read_chunk_size_byte * 2);
     xSemaphoreGive(sem_mic);
-    #endif
+#endif
   }
 }
 
@@ -209,7 +209,7 @@ void micTimestampTaskComplete(void *pvParameters)
 void create_event_handles(void)
 {
   xSemaphoreGive(sem_mic);
-  reset_interesting_task_cooldown_timer = xTimerCreate("reset_interesting_task_cooldown_timer", pdMS_TO_TICKS(100), pdFALSE, (void *)0, [](TimerHandle_t xTimer)
+  reset_interesting_task_cooldown_timer = xTimerCreate("reset_interesting_task_cooldown_timer", pdMS_TO_TICKS(500), pdFALSE, (void *)0, [](TimerHandle_t xTimer)
                                                        { interesting_task_cd = false; });
 }
 
@@ -235,11 +235,11 @@ void setup()
   );
   xTaskCreatePinnedToCore(MicrophoneTask, "MicrophoneTask", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(micTasksHub, "micTasksHub", 10000, NULL, 1, NULL, 1);
-  #ifndef USE_NAIVE_TIMESTAMP
+#ifndef USE_NAIVE_TIMESTAMP
   xTaskCreatePinnedToCore(micTimestampTaskComplete, "micTimestampTask", 10000, NULL, 1, NULL, 1);
-  #else
+#else
   xTaskCreatePinnedToCore(micTimestampTaskNaive, "micTimestampTask", 10000, NULL, 1, NULL, 1);
-  #endif
+#endif
 }
 
 void loop()
