@@ -115,7 +115,6 @@ void micTasksHub(void *pvParameters)
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     xTaskNotify(micSerialSendTaskHandle, 0, eNoAction);
     xTaskNotify(micTimestampTaskHandle, 0, eNoAction);
-    xTaskNotify(micSerialSendTaskHandle, 0, eNoAction);
   }
 }
 
