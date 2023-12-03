@@ -24,4 +24,10 @@
 #define read_chunk_size_byte  2500          // about 20ms of data
 #define DATA_SIZE_MIC  sampleRate_mic / 5 // 200ms of data, must be at least 3x read_chunk_size_byte
 
+#define WIFISSID "Acoustic"
+#define WIFIPWD "12345670"
+#define SERVER_URL "http://192.168.1.2/endpoint"
+
+#define TOTAL_NODES 3
+
 #endif

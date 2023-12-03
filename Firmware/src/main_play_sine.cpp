@@ -5,6 +5,7 @@
 #include <freertos/FreeRTOS.h>
 #include "init.h"
 #include "esp_log.h"
+#include "mywifi.h"
 
 TTGOClass *ttgo;
 int16_t buffer_speaker[bufferSize_speaker];
@@ -25,6 +26,7 @@ TimerHandle_t reset_interesting_task_cooldown_timer;
 
 bool eventTimeStampAvailable = false;
 uint64_t eventTimeStamp = 0;
+HTTPClientManager *httpClient = nullptr;
 
 void MicrophoneTask(void *pvParameters)
 {
@@ -232,6 +234,14 @@ void setup()
       1,                        // Priority of the task
       NULL,                     // Task handle
       0                         // Core where the task should run
+  );
+  xTaskCreate(
+      startup_wifi_task, // Task function
+      "startup_wifi_task",
+      10000, // Stack size in words
+      NULL,  // Task input parameter
+      1,     // Priority of the task
+      NULL   // Task handle
   );
   xTaskCreatePinnedToCore(MicrophoneTask, "MicrophoneTask", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(micTasksHub, "micTasksHub", 10000, NULL, 1, NULL, 1);
