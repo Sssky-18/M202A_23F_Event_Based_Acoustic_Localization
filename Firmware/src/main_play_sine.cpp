@@ -10,7 +10,7 @@
 TTGOClass *ttgo;
 int16_t buffer_speaker[bufferSize_speaker];
 
-xTaskHandle micSerialSendTaskHandle, micTimestampTaskHandle, speakerPlaySyncTaskHandle, micTasksHandle, micPostTimestampTaskHandle;
+xTaskHandle micSerialSendTaskHandle, micTimestampTaskHandle, speakerPlaySyncTaskHandle, micTasksHandle, micPostTimestampTaskHandle,speakerTaskHandle;
 int16_t *data_mic_cyclic;
 uint8_t *byte_buffer_mic = new uint8_t[BUFFER_SIZE_MIC];
 uint16_t data_mic_idx = 0;
@@ -153,17 +153,18 @@ void micPostTimestampTask(void *pvParameters)
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    if (eventTimeStampAvailable) // new event timestamp available, should always hold true
-    {
-      eventTimeStampAvailable = false;
-      event_timestamp_processing = eventTimeStamp;
-    }
-    else
-    {
-      ESP_LOGE("micPostTimestampTask", "Event timestamp not available when called");
-    }
+
+void speakerTask(void *pvParameters)
+{
+  size_t bytesWritten = 0;
+  speakerTaskHandle = xTaskGetCurrentTaskHandle();
+  for (;;)
+  {
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    i2s_write(i2sPort_speaker, (const char *)buffer_speaker, bufferSize_speaker * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
   }
 }
+
 
 void micTimestampTaskFull(void *pvParameters)
 {
@@ -250,14 +251,10 @@ void setup()
   xTaskCreatePinnedToCore(micTimestampTaskNaive, "micTimestampTask", 10000, NULL, 1, NULL, 1);
 #endif
 xTaskCreatePinnedToCore(micPostTimestampTask, "micPostTimestampTask", 10000, NULL, 1, NULL, 1);
+xTaskCreatePinnedToCore(speakerTask, "speakerTask", 10000, NULL, 1, NULL, 0);
 }
 
 void loop()
 {
-  size_t bytesWritten = 0;
-  // #ifdef DEBUG_OUTPUT
-  //   i2s_write(i2sPort_speaker, (const char *)buffer_speaker, bufferSize_speaker * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
-  // #endif
-
   vTaskDelay(pdMS_TO_TICKS(2000));
 }
