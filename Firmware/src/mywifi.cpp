@@ -12,6 +12,7 @@ void startup_wifi_task(void *pV)
     }
     Serial.println("Connected to WiFi");
     httpClient = new HTTPClientManager(SERVER_URL);
+    vTaskDelete(NULL);
 }
 
 HTTPClientManager::HTTPClientManager(const String &url) : serverUrl(url) {}
