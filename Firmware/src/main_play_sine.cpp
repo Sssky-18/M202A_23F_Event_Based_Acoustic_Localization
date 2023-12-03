@@ -138,7 +138,7 @@ void micTimestampTaskNaive(void *pvParameters)
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    if (interesting_task_detected) // not necessary under this context, but this flag is important for micTimestampTaskComplete
+    if (interesting_task_detected) // not necessary under this context, but this flag is important for micTimestampTaskFull
     {
       interesting_task_detected = false;
       xTaskNotify(micPostTimestampTaskHandle, 0, eNoAction);
@@ -165,7 +165,7 @@ void micPostTimestampTask(void *pvParameters)
   }
 }
 
-void micTimestampTaskComplete(void *pvParameters)
+void micTimestampTaskFull(void *pvParameters)
 {
   bool flag = false;
   const static size_t internal_buffer_size = read_chunk_size_byte / 2 * 3;
@@ -245,7 +245,7 @@ void setup()
   xTaskCreatePinnedToCore(MicrophoneTask, "MicrophoneTask", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(micTasksHub, "micTasksHub", 10000, NULL, 1, NULL, 1);
 #ifndef USE_NAIVE_TIMESTAMP
-  xTaskCreatePinnedToCore(micTimestampTaskComplete, "micTimestampTask", 10000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(micTimestampTaskFull, "micTimestampTask", 10000, NULL, 1, NULL, 1);
 #else
   xTaskCreatePinnedToCore(micTimestampTaskNaive, "micTimestampTask", 10000, NULL, 1, NULL, 1);
 #endif
