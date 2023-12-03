@@ -50,3 +50,20 @@ int HTTPClientManager::postRAW(const String& rawData) {
     }
     return httpResponseCode;
 }
+
+int HTTPClientManager::postinfo(const int id,const int event_ts, const int sync_ts[TOTAL_NODES])
+{
+    // Format the JSON payload
+    static StaticJsonDocument<200> doc;
+    doc["event_ts"] = event_ts;
+    JsonArray syncArray = doc.createNestedArray("sync_ts");
+    for (int i = 0; i < TOTAL_NODES; i++)
+    {
+        syncArray.add(sync_ts[i]);
+    }
+    String payload;
+    serializeJson(doc, payload);
+
+    // Call postRAW with the formatted JSON payload
+    return postRAW(payload);
+}

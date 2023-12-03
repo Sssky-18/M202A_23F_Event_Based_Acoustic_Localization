@@ -21,7 +21,7 @@ public:
 
     void begin();
 
-    int postinfo(const int event_ts,const int sync_ts[TOTAL_NODES]);
+    int postinfo(const int id, const int event_ts,const int sync_ts[TOTAL_NODES]);
 
     int postRAW(const String& jsonData);
 
