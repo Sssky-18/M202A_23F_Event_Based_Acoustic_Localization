@@ -21,7 +21,7 @@ uint64_t data_energy_sum = 0, data_energy_avg = 0;
 
 auto sem_mic = xSemaphoreCreateMutex();
 
-bool interesting_task_cd = true, interesting_task_detected = false;
+bool interesting_task_cd = false, interesting_task_detected = false;
 TimerHandle_t reset_interesting_task_cooldown_timer;
 
 bool eventTimeStampAvailable = false;
