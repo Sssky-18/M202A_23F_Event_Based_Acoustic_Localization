@@ -3,8 +3,8 @@
 extern HTTPClientManager *httpClient;
 void startup_wifi_task(void *pV)
 {
+    esp_log_level_set(TAG, ESP_LOG_INFO);
     WiFi.begin(WIFISSID, WIFIPWD);
-
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(1000);
