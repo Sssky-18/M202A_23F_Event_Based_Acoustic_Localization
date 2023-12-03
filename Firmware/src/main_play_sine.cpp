@@ -210,7 +210,7 @@ void micTimestampTaskFull(void *pvParameters)
 void create_event_handles(void)
 {
   xSemaphoreGive(sem_mic);
-  reset_interesting_task_cooldown_timer = xTimerCreate("reset_interesting_task_cooldown_timer", pdMS_TO_TICKS(500), pdFALSE, (void *)0, [](TimerHandle_t xTimer)
+  reset_interesting_task_cooldown_timer = xTimerCreate("reset_interesting_task_cooldown_timer", pdMS_TO_TICKS(COOLDOWN_TIME_MS), pdFALSE, (void *)0, [](TimerHandle_t xTimer)
                                                        { interesting_task_cd = false; });
 }
 
