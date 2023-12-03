@@ -10,6 +10,7 @@ def post_json():
         posted_data = request.get_json()
         print("Received JSON data:", posted_data)
         received_strings.append(posted_data)
+        print(received_strings)
         return "JSON data received and saved successfully!"
 
 @app.route('/get_received_json', methods=['GET'])
