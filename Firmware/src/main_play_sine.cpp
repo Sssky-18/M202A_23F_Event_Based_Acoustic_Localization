@@ -249,6 +249,7 @@ void setup()
 #else
   xTaskCreatePinnedToCore(micTimestampTaskNaive, "micTimestampTask", 10000, NULL, 1, NULL, 1);
 #endif
+xTaskCreatePinnedToCore(micPostTimestampTask, "micPostTimestampTask", 10000, NULL, 1, NULL, 1);
 }
 
 void loop()
