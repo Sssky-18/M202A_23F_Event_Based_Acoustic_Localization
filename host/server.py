@@ -7,9 +7,34 @@ import datetime
 from math import sqrt
 import time
 
+# receive JSON 
+# {id}
+# {event_ts}
+# {sync_ts}
+
 app = Flask(__name__)
 COORD = [[-3,0], [3,1], [0,4]]
 V = 1503.84
+def calculate_delta_t(coord , v, sync_et_list,sync_ts_list):
+    delta_t = []
+    m0 = coord[0]  # coordinates of mic 0 (x,y)
+    m1 = coord[1]  # coordinates of mic 1 (x,y)
+    m2 = coord[2]  # coordinates of mic 2 (x,y)
+
+    d01 = sqrt((m0[0]-m1[0])**2.0 + (m0[1]-m1[1])**2.0)/v
+    delta_t01 = (sync_ts_list[0][0] - sync_et_list[0]) + (d01/v) - (sync_ts_list[1][0] - sync_et_list[1])
+    delta_t.append(delta_t01)
+
+    d02 = sqrt((m0[0]-m2[0])**2.0 + (m0[1]-m2[1])**2.0)/v
+    delta_t02 = (sync_ts_list[0][0] - sync_et_list[0]) + (d02/v) - (sync_ts_list[2][0] - sync_et_list[2])
+    delta_t.append(delta_t02)
+
+    d12 = sqrt((m1[0]-m2[0])**2.0 + (m1[1]-m2[1])**2.0)/v
+    delta_t12 = (sync_ts_list[1][1] - sync_et_list[1]) + (d12/v) - (sync_ts_list[2][1] - sync_et_list[2])
+    delta_t.append(delta_t12)
+
+    return delta_t
+
 
 def tdoa(coord, v, delta_t):
     result = []
@@ -71,29 +96,32 @@ def tdoa(coord, v, delta_t):
     end = time.time()
     print(end-start)
     return result
-
-received_int = []
+sync_et_list = []
+sync_ts_list = []
 
 @app.route('/post_json', methods=['POST'])
 def post_json():
     if request.method == 'POST':
         posted_data = request.get_json()
         print("Received JSON data:", posted_data)
-        for value in posted_data.values():
-            received_int.append(value)
-        print("received:", received_int)
+        event_ts = posted_data.get('event_ts')
+        sync_ts = posted_data.get('sync_ts')
+        sync_et_list.append(event_ts)
+        sync_ts_list.append(sync_ts)
+        print("received:", sync_ts_list)
 
-        if len(received_int) == 3:
-            print("3 val:", received_int)
-            result = tdoa(COORD,V,received_int)
-            print(result)
+        if len(sync_ts_list) == 3:
+            print("3 val:", sync_ts_list)
+            delta_t = calculate_delta_t(COORD, V, sync_et_list, sync_ts_list)
+            result = tdoa(COORD,V,delta_t)
+            print("Result:", result)
             return jsonify({"message": "Values extracted successfully!", "result": result[0]})
         else:
             return jsonify({"wait": "Waiting for more data"})
 
 @app.route('/get_received_json', methods=['GET'])
 def get_received_json():
-    return json.dumps(received_int)
+    return json.dumps(sync_ts_list)
 
 if __name__ == '__main__':
     app.run(host='192.168.137.249', port=5000)

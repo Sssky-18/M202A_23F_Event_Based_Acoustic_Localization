@@ -3,8 +3,9 @@ import json
 from math import sqrt
 
 url = 'http://192.168.137.249:5000/post_json'
-
+'''
 def calculate_t():
+
     m0 = [-3, 0]  # coordinates of mic 0 (x,y)
     m1 = [3, 1]  # coordinates of mic 1 (x,y)
     m2 = [0, 4]  # coordinates of mic 2 (x,y)
@@ -24,11 +25,25 @@ def calculate_t():
     t3 = a1 - a2  # tdoa between mic 1 and 2
 
     return [t1,t2,t3]
-t = calculate_t()
+'''
+#t = calculate_t()
+
 json_data = [
-    {"key1": t[0]},
-    {"key2": t[1]},
-    {"key3": t[2]},
+    {
+    "id": 1,
+    "event_ts": 0,
+    "sync_ts": [1.5, 1.6, 1.7]
+  },
+  {
+    "id": 2,
+    "event_ts": 0,
+    "sync_ts": [1.8, 1.9, 2.0]
+  },
+  {
+    "id": 3,
+    "event_ts": 0,
+    "sync_ts": [2.5, 2.6, 2.7]
+  }
 ]
 
 for data in json_data:
