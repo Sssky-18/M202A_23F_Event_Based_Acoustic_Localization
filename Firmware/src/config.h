@@ -26,7 +26,8 @@
 
 #define WIFISSID "Acoustic"
 #define WIFIPWD "12345670"
-#define SERVER_URL "http://192.168.1.2/endpoint"
+
+#define SERVER_URL "http://192.168.137.249:5000/post_json"
 
 #define TOTAL_NODES 3
 
