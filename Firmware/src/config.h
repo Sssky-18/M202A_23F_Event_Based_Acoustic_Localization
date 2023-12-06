@@ -22,7 +22,7 @@
 #define BUFFER_SIZE_MIC  (2 * (sampleRate_mic * BUFFER_TIME_MIC_MS / 1000))
 
 #define read_chunk_size_byte  2500          // about 20ms of data
-#define DATA_SIZE_MIC  sampleRate_mic / 5 // 200ms of data, must be at least 3x read_chunk_size_byte
+#define DATA_SIZE_MIC  (sampleRate_mic / 5) // 200ms of data, must be at least 3x read_chunk_size_byte
 
 #define WIFISSID "Acoustic"
 #define WIFIPWD "12345670"
