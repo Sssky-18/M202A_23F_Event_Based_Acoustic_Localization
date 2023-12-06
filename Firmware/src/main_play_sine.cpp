@@ -71,40 +71,58 @@ void MicrophoneTask(void *pvParameters)
       Serial.println("Bootstrap Complete");
 #endif
     }
-    else // start processing
+    else
     {
-      // Serial.printf("%lld,%f\n",(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC, data_energy_sum * noise_reject_ratio);
-      if ((float)(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC >= data_energy_sum * noise_reject_ratio) // interesting event detected
+      // start processing
+      if (doing_sync)
+      {
+
+#ifndef DEBUG_OUTPUT
+        Serial.printf("Sync event detected at stamp: %lld, max energy %ld, average %f\n",
+                      total_read_length + argmax,
+                      (uint32_t)new_read_max_abs * new_read_max_abs,
+                      (float)data_energy_sum / DATA_SIZE_MIC);
+#endif
+        sync_ts[sync_idx] = total_read_length + argmax;
+        sync_idx++;
+        if (sync_idx == TOTAL_NODES)
+        {
+          doing_sync = false;
+          sync_idx = 0; // finished sync sequence capture
+          xTaskNotify(micPostTimestampTaskHandle, 0, eNoAction);
+        }
+      }
+      else if ((float)(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC >= data_energy_sum * noise_reject_ratio) // interesting event detected
         if (!interesting_task_cd)
         {
           interesting_task_detected = true;
           interesting_task_cd = true;
           xTimerStart(reset_interesting_task_cooldown_timer, 0);
+          eventTimeStamp = total_read_length + argmax;
 #ifndef DEBUG_OUTPUT
-          Serial.printf("Interesting event detected at time: %f, max_abs %d, average %f\n",
-                        (current_time - time_offset) / 1e6,
-                        new_read_max_abs,
+          Serial.printf("Interesting event detected at stamp: %lld, max energy %ld, average %f\n",
+                        eventTimeStamp,
+                        (uint32_t)new_read_max_abs * new_read_max_abs,
                         (float)data_energy_sum / DATA_SIZE_MIC);
 #endif
 #ifdef USE_NAIVE_TIMESTAMP
-          eventTimeStamp = total_read_length + argmax;
           eventTimeStampAvailable = true;
 #endif
         }
         else
         {
 #ifndef DEBUG_OUTPUT
-          Serial.printf("Interesting event detected but on cooldown at time: %f, max_abs %d, average %f\n",
-                        (current_time - time_offset) / 1e6,
-                        new_read_max_abs,
+          Serial.printf("Interesting event detected but on cooldown at time: %lld, max energy %ld, average %f\n",
+                        total_read_length + argmax,
+                        (uint32_t)new_read_max_abs * new_read_max_abs,
                         (float)data_energy_sum / DATA_SIZE_MIC);
 #endif
         }
     }
-    xTaskNotify(micTasksHandle, 0, eNoAction);
-    current_time = esp_timer_get_time();
-    total_read_length += read_len / 2;
   }
+  xTaskNotify(micTasksHandle, 0, eNoAction);
+  current_time = esp_timer_get_time();
+  total_read_length += read_len / 2;
 }
 
 void micTasksHub(void *pvParameters)
