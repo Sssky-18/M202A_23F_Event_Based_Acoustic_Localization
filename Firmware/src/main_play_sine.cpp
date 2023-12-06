@@ -10,7 +10,7 @@
 TTGOClass *ttgo;
 int16_t buffer_speaker[bufferSize_speaker];
 
-xTaskHandle micSerialSendTaskHandle, micTimestampTaskHandle, speakerPlaySyncTaskHandle, micTasksHandle, micPostTimestampTaskHandle,speakerTaskHandle;
+xTaskHandle micSerialSendTaskHandle, micTimestampTaskHandle, speakerPlaySyncTaskHandle, micTasksHandle, micPostTimestampTaskHandle, speakerTaskHandle;
 int16_t *data_mic_cyclic;
 int32_t *data_corr_cyclic;
 uint8_t *byte_buffer_mic = new uint8_t[BUFFER_SIZE_MIC];
@@ -248,23 +248,8 @@ void setup()
   setup_gui();
   setup_speaker();
   setup_mic();
-  xTaskCreatePinnedToCore(
-      SerialTransmissionTask,   // Task function
-      "SerialTransmissionTask", // Name of the task
-      10000,                    // Stack size in words
-      NULL,                     // Task input parameter
-      1,                        // Priority of the task
-      NULL,                     // Task handle
-      0                         // Core where the task should run
-  );
-  xTaskCreate(
-      startup_wifi_task, // Task function
-      "startup_wifi_task",
-      10000, // Stack size in words
-      NULL,  // Task input parameter
-      1,     // Priority of the task
-      NULL   // Task handle
-  );
+  xTaskCreatePinnedToCore(SerialTransmissionTask, "SerialTransmissionTask", 10000, NULL, 1, NULL, 0);
+  xTaskCreate(startup_wifi_task, "startup_wifi_task", 10000, NULL, 1, NULL);
   xTaskCreatePinnedToCore(MicrophoneTask, "MicrophoneTask", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(micTasksHub, "micTasksHub", 10000, NULL, 1, NULL, 1);
 #ifndef USE_NAIVE_TIMESTAMP
@@ -272,8 +257,8 @@ void setup()
 #else
   xTaskCreatePinnedToCore(micTimestampTaskNaive, "micTimestampTask", 10000, NULL, 1, NULL, 1);
 #endif
-xTaskCreatePinnedToCore(micPostTimestampTask, "micPostTimestampTask", 10000, NULL, 1, NULL, 1);
-xTaskCreatePinnedToCore(speakerTask, "speakerTask", 10000, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(micPostTimestampTask, "micPostTimestampTask", 10000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(speakerTask, "speakerTask", 10000, NULL, 1, NULL, 0);
 }
 
 void loop()
