@@ -26,8 +26,10 @@
 
 #define WIFISSID "Acoustic"
 #define WIFIPWD "12345670"
-#define COOLDOWN_TIME_MS (500*TOTAL_NODES)
-#define SYNC_OFFSET_PRE_DEVICE_MS 50
+#define COOLDOWN_TIME_MS 1000
+#define SYNC_OFFSET_PRE_DEVICE_MS 100
+
+#define MIC_OFFSET (-1550)
 
 #define SERVER_URL "http://192.168.137.249:5000/post_json"
 
