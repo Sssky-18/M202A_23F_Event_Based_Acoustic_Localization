@@ -44,23 +44,26 @@ void MicrophoneTask(void *pvParameters)
     new_read_max_abs = 0;
     i2s_read(I2S_NUM_0, (char *)byte_buffer_mic, read_chunk_size_byte * 2, &read_len, portMAX_DELAY);
     xSemaphoreTake(sem_mic, portMAX_DELAY);
+    start_copy_idx=data_mic_idx;
     for (int i = 0; i < read_len / 2; i++)
     {
-      val16 = byte_buffer_mic[i * 2] + byte_buffer_mic[i * 2 + 1] * 256;
+      val16 = byte_buffer_mic[i * 2] + byte_buffer_mic[i * 2 + 1] * 256 - MIC_OFFSET;
       if (ABS(val16) > new_read_max_abs)
       {
         new_read_max_abs = ABS(val16);
         argmax = i;
       }
-      data_energy_sum += val16 * val16;
-      data_energy_sum -= data_mic_cyclic[data_mic_idx] * data_mic_cyclic[data_mic_idx];
+      // data_energy_sum =data_energy_sum+ (int64_t)val16 *(int64_t) val16 - (int64_t)data_mic_cyclic[data_mic_idx] *(int64_t) data_mic_cyclic[data_mic_idx];
       data_mic_cyclic[data_mic_idx] = val16;
       data_mic_idx++;
       if (data_mic_idx == DATA_SIZE_MIC)
       {
+        //to do: call filter
         data_mic_idx = 0;
+        start_copy_idx=0;
       }
     }
+    // Serial.printf("Readlen %d val16 %d Data energy sum %lld\n",read_len,val16,data_energy_sum);
     xSemaphoreGive(sem_mic);
     if (!bootstrap_complete) // not enough data accumulated
     {
