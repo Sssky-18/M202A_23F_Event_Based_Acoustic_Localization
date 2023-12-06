@@ -12,6 +12,7 @@ int16_t buffer_speaker[bufferSize_speaker];
 
 xTaskHandle micSerialSendTaskHandle, micTimestampTaskHandle, speakerPlaySyncTaskHandle, micTasksHandle, micPostTimestampTaskHandle,speakerTaskHandle;
 int16_t *data_mic_cyclic;
+int32_t *data_corr_cyclic;
 uint8_t *byte_buffer_mic = new uint8_t[BUFFER_SIZE_MIC];
 uint16_t data_mic_idx = 0;
 uint64_t total_read_length = 0;
@@ -32,17 +33,17 @@ void MicrophoneTask(void *pvParameters)
 {
   int16_t val16;
   data_mic_cyclic = new int16_t[DATA_SIZE_MIC]{0};
+  data_corr_cyclic=new int32_t[DATA_SIZE_MIC];
   int64_t current_time, before_read_time, time_offset;
   uint32_t read_length_offset = 0;
-  size_t read_len;
+  size_t read_len,argmax = 0,start_copy_idx=0;
   uint16_t new_read_max_abs = 0;
-  size_t argmax = 0;
   bool bootstrap_complete = false;
   for (;;)
   {
     before_read_time = esp_timer_get_time();
     new_read_max_abs = 0;
-    i2s_read(I2S_NUM_0, (char *)byte_buffer_mic, read_chunk_size_byte * 2, &read_len, portMAX_DELAY);
+    i2s_read(i2sPort_mic, (char *)byte_buffer_mic, read_chunk_size_byte * 2, &read_len, portMAX_DELAY);
     xSemaphoreTake(sem_mic, portMAX_DELAY);
     start_copy_idx=data_mic_idx;
     for (int i = 0; i < read_len / 2; i++)
