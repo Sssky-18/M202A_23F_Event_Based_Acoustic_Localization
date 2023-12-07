@@ -1,4 +1,6 @@
 #include "init.h"
+
+
 void setup_mic()
 {
   i2s_config_t i2s_config_MIC = {
@@ -56,6 +58,7 @@ void setup_speaker()
         buffer_speaker[i] = (int16_t)(sincValue * 32767.0);
         // Serial.printf("%d ", buffer_speaker[i]);
     }
+    init_fir_filter(buffer_speaker,bufferSize_speaker);
 }
 
 double sinc(double x) {

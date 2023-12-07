@@ -1,11 +1,12 @@
 #include "config.h"
 #include "driver/i2s.h"
 #include <math.h>
-#include <dsps_conv.h>
 #include <freertos/FreeRTOS.h>
 #include "init.h"
 #include "esp_log.h"
 #include "mywifi.h"
+#include "dsp.h"
+extern fir_f32_t fir_filter;
 
 TTGOClass *ttgo;
 int16_t buffer_speaker[bufferSize_speaker];
