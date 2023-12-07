@@ -13,13 +13,18 @@ int16_t buffer_speaker[bufferSize_speaker];
 
 xTaskHandle micSerialSendTaskHandle, micTimestampTaskHandle, speakerPlaySyncTaskHandle, micTasksHandle, micPostTimestampTaskHandle, speakerTaskHandle;
 int16_t *data_mic_cyclic;
-int32_t *data_corr_cyclic;
+int32_t *data_moving_average_cyclic;
 uint8_t *byte_buffer_mic = new uint8_t[BUFFER_SIZE_MIC];
 uint16_t data_mic_idx = 0;
-uint64_t total_read_length = 0;
+uint64_t running_read_length = 0;
 
-const float noise_reject_ratio = 1.8;
-uint64_t data_energy_sum = 0, data_energy_avg = 0;
+const float noise_reject_ratio = 50;
+// uint64_t data_energy_sum = 0;
+const uint64_t data_energy_sum = 32151984;
+
+bool doing_sync = false;
+size_t sync_idx = 0;
+size_t sync_ts[TOTAL_NODES] = {0};
 
 auto sem_mic = xSemaphoreCreateMutex();
 
@@ -34,10 +39,11 @@ void MicrophoneTask(void *pvParameters)
 {
   int16_t val16;
   data_mic_cyclic = new int16_t[DATA_SIZE_MIC]{0};
-  data_corr_cyclic=new int32_t[DATA_SIZE_MIC];
+  data_moving_average_cyclic = new int32_t[DATA_SIZE_MIC];
   int64_t current_time, before_read_time, time_offset;
   uint32_t read_length_offset = 0;
-  size_t read_len,argmax = 0,start_copy_idx=0;
+  size_t read_len, argmax = 0, start_copy_idx = 0;
+  static bool triggered_last_time=false;
   uint16_t new_read_max_abs = 0;
   bool bootstrap_complete = false;
   for (;;)
@@ -46,7 +52,7 @@ void MicrophoneTask(void *pvParameters)
     new_read_max_abs = 0;
     i2s_read(i2sPort_mic, (char *)byte_buffer_mic, read_chunk_size_byte * 2, &read_len, portMAX_DELAY);
     xSemaphoreTake(sem_mic, portMAX_DELAY);
-    start_copy_idx=data_mic_idx;
+    start_copy_idx = data_mic_idx;
     for (int i = 0; i < read_len / 2; i++)
     {
       val16 = byte_buffer_mic[i * 2] + byte_buffer_mic[i * 2 + 1] * 256 - MIC_OFFSET;
@@ -60,16 +66,16 @@ void MicrophoneTask(void *pvParameters)
       data_mic_idx++;
       if (data_mic_idx == DATA_SIZE_MIC)
       {
-        //to do: call filter
+        // to do: call filter
         data_mic_idx = 0;
-        start_copy_idx=0;
+        start_copy_idx = 0;
       }
     }
     // Serial.printf("Readlen %d val16 %d Data energy sum %lld\n",read_len,val16,data_energy_sum);
     xSemaphoreGive(sem_mic);
     if (!bootstrap_complete) // not enough data accumulated
     {
-      read_length_offset = total_read_length;
+      read_length_offset = running_read_length;
       time_offset = esp_timer_get_time();
       bootstrap_complete = true;
 #ifndef DEBUG_OUTPUT
@@ -81,20 +87,30 @@ void MicrophoneTask(void *pvParameters)
       // start processing
       if (doing_sync)
       {
-
-#ifndef DEBUG_OUTPUT
-        Serial.printf("Sync event detected at stamp: %lld, max energy %ld, average %f\n",
-                      total_read_length + argmax,
-                      (uint32_t)new_read_max_abs * new_read_max_abs,
-                      (float)data_energy_sum / DATA_SIZE_MIC);
-#endif
-        sync_ts[sync_idx] = total_read_length + argmax;
-        sync_idx++;
-        if (sync_idx == TOTAL_NODES)
+        if ((float)(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC >= data_energy_sum * noise_reject_ratio) // use a different noise reject ratio
         {
-          doing_sync = false;
-          sync_idx = 0; // finished sync sequence capture
-          xTaskNotify(micPostTimestampTaskHandle, 0, eNoAction);
+        if (!triggered_last_time)  // prevent continuous trigger
+        {
+    #ifndef DEBUG_OUTPUT
+          Serial.printf("Sync event detected at stamp: %lld, max energy %ld, average %f\n",
+                        running_read_length + argmax,
+                        (uint32_t)new_read_max_abs * new_read_max_abs,
+                        (float)data_energy_sum / DATA_SIZE_MIC);
+    #endif
+          sync_ts[sync_idx] = running_read_length + argmax;
+          sync_idx++;
+          if (sync_idx == TOTAL_NODES)
+          {
+            doing_sync = false;
+            sync_idx = 0; // finished sync sequence capture
+            xTaskNotify(micPostTimestampTaskHandle, 0, eNoAction);
+          }
+        }
+        triggered_last_time=true;
+        }
+        else
+        {
+          triggered_last_time=false;
         }
       }
       else if ((float)(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC >= data_energy_sum * noise_reject_ratio) // interesting event detected
@@ -103,7 +119,7 @@ void MicrophoneTask(void *pvParameters)
           interesting_task_detected = true;
           interesting_task_cd = true;
           xTimerStart(reset_interesting_task_cooldown_timer, 0);
-          eventTimeStamp = total_read_length + argmax;
+          eventTimeStamp = running_read_length + argmax;
 #ifndef DEBUG_OUTPUT
           Serial.printf("Interesting event detected at stamp: %lld, max energy %ld, average %f\n",
                         eventTimeStamp,
@@ -118,7 +134,7 @@ void MicrophoneTask(void *pvParameters)
         {
 #ifndef DEBUG_OUTPUT
           Serial.printf("Interesting event detected but on cooldown at time: %lld, max energy %ld, average %f\n",
-                        total_read_length + argmax,
+                        running_read_length + argmax,
                         (uint32_t)new_read_max_abs * new_read_max_abs,
                         (float)data_energy_sum / DATA_SIZE_MIC);
 #endif
@@ -127,7 +143,7 @@ void MicrophoneTask(void *pvParameters)
   }
   xTaskNotify(micTasksHandle, 0, eNoAction);
   current_time = esp_timer_get_time();
-  total_read_length += read_len / 2;
+  running_read_length += read_len / 2;
 }
 
 void micTasksHub(void *pvParameters)
@@ -172,10 +188,22 @@ void micTimestampTaskNaive(void *pvParameters)
 void micPostTimestampTask(void *pvParameters)
 {
   uint64_t event_timestamp_processing = 0; // buffer this in case of it being overwritten
+  static uint8_t device_id = DEVICE_ID;
   micPostTimestampTaskHandle = xTaskGetCurrentTaskHandle();
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    eventTimeStampAvailable = false;
+    event_timestamp_processing = eventTimeStamp;
+    // start syncronization
+    vTaskDelay(pdMS_TO_TICKS(SYNC_OFFSET_PRE_DEVICE_MS * DEVICE_ID));
+    doing_sync = true;
+    xTaskNotify(speakerTaskHandle, 0, eNoAction); //start sync
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    // start sending timestamp
+    httpClient->postinfo(device_id, event_timestamp_processing, sync_ts);
+  }
+}
 
 void speakerTask(void *pvParameters)
 {
@@ -184,10 +212,9 @@ void speakerTask(void *pvParameters)
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    i2s_write(i2sPort_speaker, (const char *)buffer_speaker, bufferSize_speaker * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
+    // i2s_write(i2sPort_speaker, (const char *)buffer_speaker, bufferSize_speaker * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
   }
 }
-
 
 void micTimestampTaskFull(void *pvParameters)
 {
