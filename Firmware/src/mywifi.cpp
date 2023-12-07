@@ -51,7 +51,7 @@ int HTTPClientManager::postRAW(const String& rawData) {
     return httpResponseCode;
 }
 
-int HTTPClientManager::postinfo(const int id,const int event_ts, const int sync_ts[TOTAL_NODES])
+int HTTPClientManager::postinfo(const int id,const int event_ts, const size_t sync_ts[TOTAL_NODES])
 {
     // Format the JSON payload
     static StaticJsonDocument<200> doc;
