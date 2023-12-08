@@ -196,7 +196,8 @@ void micPostTimestampTask(void *pvParameters)
     eventTimeStampAvailable = false;
     event_timestamp_processing = eventTimeStamp;
     // start syncronization
-    vTaskDelay(pdMS_TO_TICKS(SYNC_OFFSET_PRE_DEVICE_MS * DEVICE_ID));
+    ESP_LOGI("micPostTimestampTask", "Syncronization started");
+    vTaskDelay(pdMS_TO_TICKS(SYNC_OFFSET_PRE_DEVICE_MS * DEVICE_ID+SYNC_OFFSET_MS));
     doing_sync = true;
     xTaskNotify(speakerTaskHandle, 0, eNoAction); //start sync
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
