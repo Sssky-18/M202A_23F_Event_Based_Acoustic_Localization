@@ -96,18 +96,19 @@ def tdoa(coord, v, delta_t):
     end = time.time()
     print(end-start)
     return result
-sync_et_list = []
-sync_ts_list = []
+sync_et_list = [[]*3]
+sync_ts_list = [[]*3]
 
 @app.route('/post_json', methods=['POST'])
 def post_json():
     if request.method == 'POST':
         posted_data = request.get_json()
         print("Received JSON data:", posted_data)
+        id = posted_data.get('id')
         event_ts = posted_data.get('event_ts')
         sync_ts = posted_data.get('sync_ts')
-        sync_et_list.append(event_ts)
-        sync_ts_list.append(sync_ts)
+        sync_et_list[id] = event_ts
+        sync_ts_list[id] = sync_ts
         print("received:", sync_ts_list)
 
         if len(sync_ts_list) == 3:
