@@ -15,6 +15,7 @@ class HTTPClientManager {
 private:
     HTTPClient http;
     String serverUrl;
+    bool ready=false;
 
 public:
     HTTPClientManager(const String& url);
@@ -23,7 +24,7 @@ public:
 
     int postinfo(const int id, const int event_ts,const size_t sync_ts[TOTAL_NODES]);
 
-    int postRAW(const String& jsonData);
+    int postRAW(const String rawData);
 
     void end();
 

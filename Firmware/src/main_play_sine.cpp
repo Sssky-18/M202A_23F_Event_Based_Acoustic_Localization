@@ -6,6 +6,7 @@
 #include "esp_log.h"
 #include "mywifi.h"
 #include "dsp.h"
+#define DEVICE_ID 0
 extern fir_f32_t fir_filter;
 
 TTGOClass *ttgo;
@@ -16,7 +17,7 @@ int16_t *data_mic_cyclic;
 int32_t *data_moving_average_cyclic;
 uint8_t *byte_buffer_mic = new uint8_t[BUFFER_SIZE_MIC];
 uint16_t data_mic_idx = 0;
-uint64_t running_read_length = 0;
+int running_read_length = 0;
 
 const float noise_reject_ratio = 50;
 // uint64_t data_energy_sum = 0;
@@ -87,12 +88,13 @@ void MicrophoneTask(void *pvParameters)
       // start processing
       if (doing_sync)
       {
-        if ((float)(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC >= data_energy_sum * noise_reject_ratio) // use a different noise reject ratio
+        if ((float)(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC >= data_energy_sum * 40) // use a different noise reject ratio
         {
+
         if (!triggered_last_time)  // prevent continuous trigger
         {
     #ifndef DEBUG_OUTPUT
-          Serial.printf("Sync event detected at stamp: %lld, max energy %ld, average %f\n",
+          Serial.printf("Sync event detected at stamp: %ld, max energy %ld, average %f\n",
                         running_read_length + argmax,
                         (uint32_t)new_read_max_abs * new_read_max_abs,
                         (float)data_energy_sum / DATA_SIZE_MIC);
@@ -113,37 +115,38 @@ void MicrophoneTask(void *pvParameters)
           triggered_last_time=false;
         }
       }
-      else if ((float)(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC >= data_energy_sum * noise_reject_ratio) // interesting event detected
+      else if ((float)(uint64_t)new_read_max_abs * new_read_max_abs * DATA_SIZE_MIC >= data_energy_sum * 50) // interesting event detected
         if (!interesting_task_cd)
         {
           interesting_task_detected = true;
           interesting_task_cd = true;
           xTimerStart(reset_interesting_task_cooldown_timer, 0);
           eventTimeStamp = running_read_length + argmax;
+            
 #ifndef DEBUG_OUTPUT
-          Serial.printf("Interesting event detected at stamp: %lld, max energy %ld, average %f\n",
-                        eventTimeStamp,
+          Serial.printf("Interesting event detected at stamp: %ld, max energy %ld, average %f\n",
+                        running_read_length + argmax,
                         (uint32_t)new_read_max_abs * new_read_max_abs,
                         (float)data_energy_sum / DATA_SIZE_MIC);
 #endif
 #ifdef USE_NAIVE_TIMESTAMP
           eventTimeStampAvailable = true;
 #endif
+xTaskNotify(micTasksHandle, 0, eNoAction);
         }
         else
         {
 #ifndef DEBUG_OUTPUT
-          Serial.printf("Interesting event detected but on cooldown at time: %lld, max energy %ld, average %f\n",
+          Serial.printf("Interesting event detected but on cooldown at time: %ld, max energy %ld, average %f\n",
                         running_read_length + argmax,
                         (uint32_t)new_read_max_abs * new_read_max_abs,
                         (float)data_energy_sum / DATA_SIZE_MIC);
 #endif
         }
     }
-  }
-  xTaskNotify(micTasksHandle, 0, eNoAction);
-  current_time = esp_timer_get_time();
+      current_time = esp_timer_get_time();
   running_read_length += read_len / 2;
+  }
 }
 
 void micTasksHub(void *pvParameters)
@@ -196,11 +199,19 @@ void micPostTimestampTask(void *pvParameters)
     eventTimeStampAvailable = false;
     event_timestamp_processing = eventTimeStamp;
     // start syncronization
-    ESP_LOGI("micPostTimestampTask", "Syncronization started");
-    vTaskDelay(pdMS_TO_TICKS(SYNC_OFFSET_PRE_DEVICE_MS * DEVICE_ID+SYNC_OFFSET_MS));
+    vTaskDelay(pdMS_TO_TICKS(SYNC_OFFSET_MS-50));
+    sync_idx=0;
     doing_sync = true;
+    Serial.println("Syncronization started");
+    vTaskDelay(pdMS_TO_TICKS(SYNC_OFFSET_PRE_DEVICE_MS * DEVICE_ID));
     xTaskNotify(speakerTaskHandle, 0, eNoAction); //start sync
-    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(COOLDOWN_TIME_MS));
+    if (doing_sync)
+    {
+      doing_sync = false;
+      sync_idx = 0;
+      continue;
+    }
     // start sending timestamp
     httpClient->postinfo(device_id, event_timestamp_processing, sync_ts);
   }
@@ -213,51 +224,54 @@ void speakerTask(void *pvParameters)
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    // i2s_write(i2sPort_speaker, (const char *)buffer_speaker, bufferSize_speaker * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
+    #ifndef DEBUG_OUTPUT
+    ESP_LOGI("speakerTask", "Speaker playing");
+    #endif
+    i2s_write(i2sPort_speaker, (const char *)buffer_speaker, bufferSize_speaker * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
   }
 }
 
-void micTimestampTaskFull(void *pvParameters)
-{
-  bool flag = false;
-  const static size_t internal_buffer_size = read_chunk_size_byte / 2 * 3;
-  int16_t internal_buffer[internal_buffer_size]; // exactly 3 periods of reading, roughly 60ms
-  micTimestampTaskHandle = xTaskGetCurrentTaskHandle();
-  for (;;)
-  {
-    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    if (!(interesting_task_detected || flag))
-    {
-      if (interesting_task_detected) // start delay
-      {
-        flag = true;
-        interesting_task_detected = false;
-      }
-      else // start processing
-      {
-        flag = false;
-        xSemaphoreTake(sem_mic, portMAX_DELAY);
-        if (data_mic_idx >= internal_buffer_size)
-        {
-          // Wrap back to the beginning of the internal buffer
-          size_t remaining_elements = internal_buffer_size - data_mic_idx;
-          memcpy(internal_buffer, &data_mic_cyclic[data_mic_idx - internal_buffer_size], remaining_elements * sizeof(int16_t));
-          memcpy(&internal_buffer[remaining_elements], data_mic_cyclic, (internal_buffer_size - remaining_elements) * sizeof(int16_t));
-        }
-        else
-        {
-          size_t elements_before_idx = internal_buffer_size - data_mic_idx;
-          memcpy(internal_buffer, &data_mic_cyclic[0], data_mic_idx * sizeof(int16_t));
-          memcpy(&internal_buffer[data_mic_idx], &data_mic_cyclic[DATA_SIZE_MIC - elements_before_idx], elements_before_idx * sizeof(int16_t));
-        }
-        // To do: find timestamp
-        xTaskNotify(micPostTimestampTaskHandle, 0, eNoAction);
-        xSemaphoreGive(sem_mic);
-      }
-      continue;
-    }
-  }
-}
+// void micTimestampTaskFull(void *pvParameters)
+// {
+//   bool flag = false;
+//   const static size_t internal_buffer_size = read_chunk_size_byte / 2 * 3;
+//   int16_t internal_buffer[internal_buffer_size]; // exactly 3 periods of reading, roughly 60ms
+//   micTimestampTaskHandle = xTaskGetCurrentTaskHandle();
+//   for (;;)
+//   {
+//     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+//     if (!(interesting_task_detected || flag))
+//     {
+//       if (interesting_task_detected) // start delay
+//       {
+//         flag = true;
+//         interesting_task_detected = false;
+//       }
+//       else // start processing
+//       {
+//         flag = false;
+//         xSemaphoreTake(sem_mic, portMAX_DELAY);
+//         if (data_mic_idx >= internal_buffer_size)
+//         {
+//           // Wrap back to the beginning of the internal buffer
+//           size_t remaining_elements = internal_buffer_size - data_mic_idx;
+//           memcpy(internal_buffer, &data_mic_cyclic[data_mic_idx - internal_buffer_size], remaining_elements * sizeof(int16_t));
+//           memcpy(&internal_buffer[remaining_elements], data_mic_cyclic, (internal_buffer_size - remaining_elements) * sizeof(int16_t));
+//         }
+//         else
+//         {
+//           size_t elements_before_idx = internal_buffer_size - data_mic_idx;
+//           memcpy(internal_buffer, &data_mic_cyclic[0], data_mic_idx * sizeof(int16_t));
+//           memcpy(&internal_buffer[data_mic_idx], &data_mic_cyclic[DATA_SIZE_MIC - elements_before_idx], elements_before_idx * sizeof(int16_t));
+//         }
+//         // To do: find timestamp
+//         xTaskNotify(micPostTimestampTaskHandle, 0, eNoAction);
+//         xSemaphoreGive(sem_mic);
+//       }
+//       continue;
+//     }
+//   }
+// }
 
 void create_event_handles(void)
 {
@@ -280,11 +294,11 @@ void setup()
   xTaskCreatePinnedToCore(SerialTransmissionTask, "SerialTransmissionTask", 10000, NULL, 1, NULL, 0);
   xTaskCreate(startup_wifi_task, "startup_wifi_task", 10000, NULL, 1, NULL);
   xTaskCreatePinnedToCore(MicrophoneTask, "MicrophoneTask", 10000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(micTasksHub, "micTasksHub", 10000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(micTasksHub, "micTasksHub", 10000, NULL, 1, NULL, 0);
 #ifndef USE_NAIVE_TIMESTAMP
   xTaskCreatePinnedToCore(micTimestampTaskFull, "micTimestampTask", 10000, NULL, 1, NULL, 1);
 #else
-  xTaskCreatePinnedToCore(micTimestampTaskNaive, "micTimestampTask", 10000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(micTimestampTaskNaive, "micTimestampTask", 10000, NULL, 1, NULL, 0);
 #endif
   xTaskCreatePinnedToCore(micPostTimestampTask, "micPostTimestampTask", 10000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(speakerTask, "speakerTask", 10000, NULL, 1, NULL, 0);
@@ -292,5 +306,7 @@ void setup()
 
 void loop()
 {
+  static size_t bytesWritten = 0;
   vTaskDelay(pdMS_TO_TICKS(2000));
+  // i2s_write(i2sPort_speaker, (const char *)buffer_speaker, bufferSize_speaker * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
 }
