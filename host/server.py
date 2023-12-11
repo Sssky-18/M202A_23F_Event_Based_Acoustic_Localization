@@ -13,8 +13,8 @@ import time
 # {sync_ts}
 
 app = Flask(__name__)
-COORD = [[-3,0], [3,1], [0,4]]
-V = 1503.84
+COORD = [[0,0], [-0.39,0.26], [-0.74,0]]
+V = 340
 def calculate_delta_t(coord , v, sync_et_list,sync_ts_list):
     delta_t = []
     m0 = coord[0]  # coordinates of mic 0 (x,y)
@@ -96,11 +96,15 @@ def tdoa(coord, v, delta_t):
     end = time.time()
     print(end-start)
     return result
-sync_et_list = [[]*3]
-sync_ts_list = [[]*3]
+sync_et_list = [0]*3
+print(sync_et_list)
+sync_ts_list = [[],[],[]]
+print(sync_ts_list)
 
+real_receive_length=0
 @app.route('/post_json', methods=['POST'])
 def post_json():
+    global real_receive_length
     if request.method == 'POST':
         posted_data = request.get_json()
         print("Received JSON data:", posted_data)
@@ -110,8 +114,8 @@ def post_json():
         sync_et_list[id] = event_ts
         sync_ts_list[id] = sync_ts
         print("received:", sync_ts_list)
-
-        if len(sync_ts_list) == 3:
+        real_receive_length=real_receive_length+1
+        if real_receive_length == 3:
             print("3 val:", sync_ts_list)
             delta_t = calculate_delta_t(COORD, V, sync_et_list, sync_ts_list)
             result = tdoa(COORD,V,delta_t)
@@ -125,4 +129,4 @@ def get_received_json():
     return json.dumps(sync_ts_list)
 
 if __name__ == '__main__':
-    app.run(host='192.168.137.249', port=5000)
+    app.run(host='0.0.0.0', port=5000)
