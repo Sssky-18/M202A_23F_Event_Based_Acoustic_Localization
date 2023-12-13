@@ -82,6 +82,9 @@ This project is based on two seperate components, the firmware and the software.
 
 ### 3.b. Software
 This project untilized the Time Difference of Arrival (TDOA) method to localize the source. TDoA is a technique used to determine the location of a sound source by measuring the time difference of arrival of the sound waves at different sensors.It calculates the distance difference through time delay, then utilize the distance difference and the spatial geometric positions of the sensors to determine the location of the sound source.
+![image](https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/336e29f1-7dd7-4895-abc0-f2017efa4993)
+Based on the image above, it is easily to see that our TDOA calculation requires the constant: the coordinates of three sensors, the propagation speed. Besides, it also receives the data from the firmware, and the data consists of three parts: "id" defines which sensor sent this data; "event_ts" defines the reference time for this sensor, and it will be used to synchronize and calculate the time difference; "sync_ts" defines three time spots, and they stands for the time receiving the signals sent from all three sensors(including itself). 
+<img width="537" alt="截屏2023-12-13 14 12 19" src="https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/1840686d-d280-45f6-b560-bee1d0d8ec1b">
 
 # 4. Evaluation and Results
 
