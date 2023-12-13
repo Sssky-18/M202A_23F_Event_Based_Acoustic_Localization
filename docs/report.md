@@ -80,8 +80,6 @@ This project is based on two seperate components, the firmware and the software.
 
 ### 3.a. Firmware
 
-### 3.b. Server
-
 ### 3.b. TDOA
 
 ![image](https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/336e29f1-7dd7-4895-abc0-f2017efa4993)
@@ -96,6 +94,10 @@ Upon examining the provided image, it becomes evident that our Time Difference o
 
 The collected data serves as the foundation for computing the time differences between each pair of sensors. Utilizing the known disparities in arrival times between two points, we can delineate the potential event locations through hyperbolic descriptions. To resolve these functions and estimate the event's location, I intend to employ scipy’s least-squares solver. Enhancing the solver's efficiency involves specifying the Jacobian matrix of this system, and this is just a collection of the partial derivatives of each function with respect to each independent variable. As a preliminary step before solving, an initial approximation for the event's location can be established by averaging the positions of the three observers. This approach mitigates issues related to undefined functions for specific points. Ultimately, the estimated location of the event will be obtained through this procedure.
 
+### 3.c. Host
+Given the spatial separation of three individual sensors, the implementation of a host server becomes pivotal to facilitate the transmission of data from each sensor through a post request, encapsulating the data as its payload. Consequently, upon the aggregation of all three sets of data, the server will proceed to store and apply it within the calculation process. To ensure a responsive and uncomplicated hosting mechanism, Python has been selected as the programming language of choice, utilizing the Flask library to construct the requisite components.
+
+Under conditions where the sensors and the server computer coexist within the same Wi-Fi network, the server component becomes capable of receiving 'POST' method requests from the sensors. It proceeds to save the transmitted data, adhering to designated keys such as 'id,' 'event_ts,' and 'sync_ts.' Upon reaching the predetermined count constant 'real_received_length' of three, the server triggers the execution of functions responsible for computing delta_t and subsequently estimating the source location based on the collated data lists.
 
 # 4. Evaluation and Results
 
