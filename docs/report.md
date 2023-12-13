@@ -72,7 +72,7 @@ We aim to get a working demo to present. On the demo we can measure accuracy. If
 
 [Toffee: enabling ad hoc, around-device interaction with acoustic time-of-arrival correlation](https://dl.acm.org/doi/10.1145/2628363.2628383) In ALTo, the time difference of arrival of the event's acoustic signal at a bunch of microphones are used to infer touch location. The microphones are placed at the vertices of the surface. The microphones are connect to the same device for data collection and processing. We recognize this as very stringent as it does not scale to large surface. Also it prevent the possibility of using a bunch of independent devices to infer touch location. We consider this work as an important preliminary work and we want to extend it to a more practical case.
 
-### 9.b. Software
+### 2.b. Software
 
 # 3. Technical Approach
 ### 3.a. Firmware
