@@ -11,6 +11,10 @@
 
 Provide a brief overview of the project objhectives, approach, and results.
 
+This project endeavors to transform any given surface into a functional touchscreen through the implementation of synchronized touch sensors. The primary objective involves the establishment of a system wherein three sensors are strategically positioned and synchronized to detect touch events sequentially, correlating with their respective distances from the event location. Utilizing the Time Difference of Arrival (TDOA) method, the project leverages the time variances between sensor pairs to compute the disparities in distances between sensors. This calculation aids in localizing the origin of the touch event by integrating the coordinates of the three sensors and their respective distance variances.
+
+The operational framework encompasses the programming of a server host capable of receiving post requests from the three sensors. Subsequently, the host executes TDOA functions to accurately estimate the location of the event source. This methodology promises to enable any surface to function as a touch-sensitive interface, expanding the possibilities for interactive user experiences across diverse environments.
+
 # 1 Introduction
 
 This section should cover the following items:
