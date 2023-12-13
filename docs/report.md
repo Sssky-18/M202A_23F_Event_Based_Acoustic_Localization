@@ -64,6 +64,15 @@ For the software part, we need to design a protocol to allow devices to sync wit
 We aim to get a working demo to present. On the demo we can measure accuracy. If that failed, we fallback to demo timestamping same acoustic event on different devices.
 
 # 2. Related Work
+### 9.a. Papers
+
+[Acustico: Surface Tap Detection and Localization using Wrist-based Acoustic TDOA Sensing](https://dl.acm.org/doi/10.1145/3379337.3415901) In Acustico, the time difference between surface wave and sound wave are used to infer touch location. All equipments are on users's wrist. Since the time differnce is small, high sampling rate is necessary. Also, it provides relative location to hand instead of absolute location on the surface. 
+
+[ALTo: Ad Hoc High-Accuracy Touch Interaction Using Acoustic Localization](https://arxiv.org/abs/2108.06837) In Toffee, microphoes at different edges of the same device are used and the TDoA is used to inference the relative angle of the touch event. It opens new way of user interaction. However, it does not provide localization on the surface.
+
+[Toffee: enabling ad hoc, around-device interaction with acoustic time-of-arrival correlation](https://dl.acm.org/doi/10.1145/2628363.2628383) In ALTo, the time difference of arrival of the event's acoustic signal at a bunch of microphones are used to infer touch location. The microphones are placed at the vertices of the surface. The microphones are connect to the same device for data collection and processing. We recognize this as very stringent as it does not scale to large surface. Also it prevent the possibility of using a bunch of independent devices to infer touch location. We consider this work as an important preliminary work and we want to extend it to a more practical case.
+
+### 9.b. Software
 
 # 3. Technical Approach
 
