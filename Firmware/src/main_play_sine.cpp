@@ -25,7 +25,7 @@ const uint64_t data_energy_sum = 32151984;
 
 bool doing_sync = false;
 size_t sync_idx = 0;
-size_t sync_ts[TOTAL_NODES] = {0};
+size_t *sync_ts= new size_t[TOTAL_NODES];
 
 auto sem_mic = xSemaphoreCreateMutex();
 
@@ -193,17 +193,19 @@ void micPostTimestampTask(void *pvParameters)
   uint64_t event_timestamp_processing = 0; // buffer this in case of it being overwritten
   static uint8_t device_id = DEVICE_ID;
   micPostTimestampTaskHandle = xTaskGetCurrentTaskHandle();
+  vTaskDelay(pdMS_TO_TICKS(3000));
   for (;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     eventTimeStampAvailable = false;
     event_timestamp_processing = eventTimeStamp;
-    // start syncronization
-    vTaskDelay(pdMS_TO_TICKS(SYNC_OFFSET_MS-50));
+    Serial.println("Syncronization started");
     sync_idx=0;
     doing_sync = true;
-    Serial.println("Syncronization started");
+    // start syncronization
+    vTaskDelay(pdMS_TO_TICKS(SYNC_OFFSET_MS-50));
     vTaskDelay(pdMS_TO_TICKS(SYNC_OFFSET_PRE_DEVICE_MS * DEVICE_ID));
+
     xTaskNotify(speakerTaskHandle, 0, eNoAction); //start sync
     ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(COOLDOWN_TIME_MS));
     if (doing_sync)
@@ -213,6 +215,9 @@ void micPostTimestampTask(void *pvParameters)
       continue;
     }
     // start sending timestamp
+    if (WiFi.status() != WL_CONNECTED) {
+        continue;
+    }
     httpClient->postinfo(device_id, event_timestamp_processing, sync_ts);
   }
 }
@@ -300,13 +305,12 @@ void setup()
 #else
   xTaskCreatePinnedToCore(micTimestampTaskNaive, "micTimestampTask", 10000, NULL, 1, NULL, 0);
 #endif
-  xTaskCreatePinnedToCore(micPostTimestampTask, "micPostTimestampTask", 10000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(micPostTimestampTask, "micPostTimestampTask", 10000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(speakerTask, "speakerTask", 10000, NULL, 1, NULL, 0);
 }
 
 void loop()
 {
-  static size_t bytesWritten = 0;
   vTaskDelay(pdMS_TO_TICKS(2000));
   // i2s_write(i2sPort_speaker, (const char *)buffer_speaker, bufferSize_speaker * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
 }

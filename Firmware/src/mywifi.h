@@ -24,7 +24,8 @@ public:
 
     int postinfo(const int id, const int event_ts,const size_t sync_ts[TOTAL_NODES]);
 
-    int postRAW(const String rawData);
+    int postRAW(String rawData);
+    int postRAWC(String rawData);
 
     void end();
 

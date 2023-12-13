@@ -10,7 +10,7 @@
 #define i2sWsPin  TWATCH_DAC_IIS_WS     // WCLK pin
 #define i2sDoutPin TWATCH_DAC_IIS_DOUT // DOUT pin
 
-#define speaker_duration_ms 10
+#define speaker_duration_ms 50
 #define sampleRate_speaker  44100
 #define bufferSize_speaker  (sampleRate_speaker * speaker_duration_ms / 1000)
 #define START_FREQ 2000.0
@@ -28,7 +28,7 @@
 #define WIFIPWD "12345670"
 #define COOLDOWN_TIME_MS 2000
 #define SYNC_OFFSET_PRE_DEVICE_MS 300
-#define SYNC_OFFSET_MS 200
+#define SYNC_OFFSET_MS 250
 
 #define MIC_OFFSET (-1550)
 
