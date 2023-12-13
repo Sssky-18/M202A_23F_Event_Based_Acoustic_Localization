@@ -73,11 +73,15 @@ We aim to get a working demo to present. On the demo we can measure accuracy. If
 [Toffee: enabling ad hoc, around-device interaction with acoustic time-of-arrival correlation](https://dl.acm.org/doi/10.1145/2628363.2628383) In ALTo, the time difference of arrival of the event's acoustic signal at a bunch of microphones are used to infer touch location. The microphones are placed at the vertices of the surface. The microphones are connect to the same device for data collection and processing. We recognize this as very stringent as it does not scale to large surface. Also it prevent the possibility of using a bunch of independent devices to infer touch location. We consider this work as an important preliminary work and we want to extend it to a more practical case.
 
 ### 2.b. Software
+[TDOA_DEMO] (https://github.com/dharmsen/tdoa-demo/tree/master) This python program provides a simple but effecient way to calculate the source location of a sound signal, derived with 3 microphones and multilateration. It solved the TODA functions using the fsolve function imported from scipy.optimize. 
 
 # 3. Technical Approach
+This project is based on two seperate components, the firmware and the software. We used three acoustic sensors as the firmware to receive the acoustic wave when an event occurs because three sensors is the minimum number to determine the specific location for it. We need the sensor that first receive the information as the reference sensors and synchronize other two sensors so that we can figure out the time difference. For the software side, we estimate the location based on the Time Difference of Arrival (TDOA) method. It requires at least two pairs of time difference, solving the hyperbolic functions to estimate the source location.  
+
 ### 3.a. Firmware
 
 ### 3.b. Software
+This project untilized the Time Difference of Arrival (TDOA) method to localize the source. TDoA is a technique used to determine the location of a sound source by measuring the time difference of arrival of the sound waves at different sensors.It calculates the distance difference through time delay, then utilize the distance difference and the spatial geometric positions of the sensors to determine the location of the sound source.
 
 # 4. Evaluation and Results
 
