@@ -190,4 +190,4 @@ def get_received_json():
     return json.dumps(sync_ts_list)
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.162', port=5000)
+    app.run(host='0.0.0.0', port=5000)
