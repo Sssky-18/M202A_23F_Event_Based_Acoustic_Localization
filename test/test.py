@@ -2,7 +2,7 @@ import requests
 import json
 from math import sqrt
 
-url = 'http://192.168.137.249:5000/post_json'
+url = 'http://192.168.1.162:5000/post_json'
 '''
 def calculate_t():
 

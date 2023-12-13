@@ -6,6 +6,7 @@ from scipy.optimize import fsolve
 import datetime
 from math import sqrt
 import time
+import scipy.optimize as opt
 
 # receive JSON 
 # {id}
@@ -15,6 +16,9 @@ import time
 app = Flask(__name__)
 COORD = [[0,0], [-0.39,0.26], [-0.74,0]]
 V = 340
+F = 44100
+
+# calculate the delta t between node 0&1, 0&2, 1&2
 def calculate_delta_t(coord , v, sync_et_list,sync_ts_list):
     delta_t = []
     m0 = coord[0]  # coordinates of mic 0 (x,y)
@@ -22,21 +26,54 @@ def calculate_delta_t(coord , v, sync_et_list,sync_ts_list):
     m2 = coord[2]  # coordinates of mic 2 (x,y)
 
     d01 = sqrt((m0[0]-m1[0])**2.0 + (m0[1]-m1[1])**2.0)/v
-    delta_t01 = (sync_ts_list[0][0] - sync_et_list[0]) + (d01/v) - (sync_ts_list[1][0] - sync_et_list[1])
+    delta_t01 = (sync_ts_list[0][0] - sync_et_list[0])/F + (d01) - (sync_ts_list[1][0] - sync_et_list[1])/F
     delta_t.append(delta_t01)
 
     d02 = sqrt((m0[0]-m2[0])**2.0 + (m0[1]-m2[1])**2.0)/v
-    delta_t02 = (sync_ts_list[0][0] - sync_et_list[0]) + (d02/v) - (sync_ts_list[2][0] - sync_et_list[2])
+    delta_t02 = (sync_ts_list[0][0] - sync_et_list[0])/F + (d02) - (sync_ts_list[2][0] - sync_et_list[2])/F
+    
     delta_t.append(delta_t02)
 
     d12 = sqrt((m1[0]-m2[0])**2.0 + (m1[1]-m2[1])**2.0)/v
-    delta_t12 = (sync_ts_list[1][1] - sync_et_list[1]) + (d12/v) - (sync_ts_list[2][1] - sync_et_list[2])
+    delta_t12 = (sync_ts_list[1][1] - sync_et_list[1])/F + (d12) - (sync_ts_list[2][1] - sync_et_list[2])/F
     delta_t.append(delta_t12)
 
     return delta_t
 
+# Form the optimization functions 
+def functions(x0, y0, x1, y1, x2, y2, d01, d02, d12):
+    """ Given observers at (x0, y0), (x1, y1), (x2, y2) and TDOA between observers d01, d02, d12, this closure
+        returns a function that evaluates the system of three hyperbolae for given event x, y.
+    """
+    def fn(args):
+        x, y = args
+        a = np.sqrt(np.power(x - x1, 2.) + np.power(y - y1, 2.)) - np.sqrt(np.power(x - x0, 2.) + np.power(y - y0, 2.)) - d01
+        b = np.sqrt(np.power(x - x2, 2.) + np.power(y - y2, 2.)) - np.sqrt(np.power(x - x0, 2.) + np.power(y - y0, 2.)) - d02
+        c = np.sqrt(np.power(x - x2, 2.) + np.power(y - y2, 2.)) - np.sqrt(np.power(x - x1, 2.) + np.power(y - y1, 2.)) - d12
+        return [a, b, c]
+    return fn
 
+# specify the Jacobian matrix of this system. This is just a collection of the partial derivatives of each function with respect to each independent variable
+def jacobian(x0, y0, x1, y1, x2, y2, d01, d02, d12):
+    def fn(args):
+        x, y = args
+        adx = (x - x1) / np.sqrt(np.power(x - x1, 2.) + np.power(y - y1, 2.)) - (x - x0) / np.sqrt(np.power(x - x0, 2.) + np.power(y - y0, 2.))
+        bdx = (x - x2) / np.sqrt(np.power(x - x2, 2.) + np.power(y - y2, 2.)) - (x - x0) / np.sqrt(np.power(x - x0, 2.) + np.power(y - y0, 2.))
+        cdx = (x - x2) / np.sqrt(np.power(x - x2, 2.) + np.power(y - y2, 2.)) - (x - x1) / np.sqrt(np.power(x - x1, 2.) + np.power(y - y1, 2.))
+        ady = (y - y1) / np.sqrt(np.power(x - x1, 2.) + np.power(y - y1, 2.)) - (y - y0) / np.sqrt(np.power(x - x0, 2.) + np.power(y - y0, 2.))
+        bdy = (y - y2) / np.sqrt(np.power(x - x2, 2.) + np.power(y - y2, 2.)) - (y - y0) / np.sqrt(np.power(x - x0, 2.) + np.power(y - y0, 2.))
+        cdy = (y - y2) / np.sqrt(np.power(x - x2, 2.) + np.power(y - y2, 2.)) - (y - y1) / np.sqrt(np.power(x - x1, 2.) + np.power(y - y1, 2.))
+
+        return [
+            [adx, ady],
+            [bdx, bdy],
+            [cdx, cdy]
+        ]
+    return fn
+
+'''
 def tdoa(coord, v, delta_t):
+
     result = []
     # microphones
     m0 = coord[0]  # coordinates of mic 0 (x,y)
@@ -96,6 +133,28 @@ def tdoa(coord, v, delta_t):
     end = time.time()
     print(end-start)
     return result
+'''
+
+# the TDOA process 
+def tdoa(measurements, V, delta_t):
+    '''
+    measurements is the COORD given above
+    V is the propagation speed
+    delta_t is calculated by the above function 
+    '''
+    xp = np.mean([x for x,y in measurements])
+    yp = np.mean([y for x,y in measurements])
+
+    x0, y0, = measurements[0]
+    x1, y1 = measurements[1]
+    x2, y2 = measurements[2]
+
+    F = functions(x0, y0, x1, y1, x2, y2, delta_t[0] * V, delta_t[1] * V, delta_t[2] * V)
+    J = jacobian(x0, y0, x1, y1, x2, y2, delta_t[0] * V, delta_t[1] * V, delta_t[2] * V)
+
+    result,_  = opt.leastsq(F, x0=[xp, yp], Dfun=J)
+    return result
+
 sync_et_list = [0]*3
 print(sync_et_list)
 sync_ts_list = [[],[],[]]
@@ -115,12 +174,14 @@ def post_json():
         sync_ts_list[id] = sync_ts
         print("received:", sync_ts_list)
         real_receive_length=real_receive_length+1
+
         if real_receive_length == 3:
+            real_receive_length = 0
             print("3 val:", sync_ts_list)
             delta_t = calculate_delta_t(COORD, V, sync_et_list, sync_ts_list)
             result = tdoa(COORD,V,delta_t)
             print("Result:", result)
-            return jsonify({"message": "Values extracted successfully!", "result": result[0]})
+            return jsonify({"message": "Values extracted successfully!", "result": list(result)}) # np array cannot jsonify, so convert to list 
         else:
             return jsonify({"wait": "Waiting for more data"})
 
@@ -129,4 +190,4 @@ def get_received_json():
     return json.dumps(sync_ts_list)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='192.168.1.162', port=5000)
