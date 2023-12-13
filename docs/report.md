@@ -86,8 +86,6 @@ This project is based on two seperate components, the firmware and the software.
 
 This project employed the Time Difference of Arrival (TDoA) method for source localization. TDoA constitutes a technique utilized to ascertain the whereabouts of a sound source by measuring the time variance in the arrival of sound waves at distinct sensors. It involves the calculation of distance disparities via time delays, subsequently leveraging these differences alongside the spatial geometric positions of the sensors to precisely determine the location of the sound source.
 
-<img width="537" alt="截屏2023-12-13 14 12 19" src="https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/1840686d-d280-45f6-b560-bee1d0d8ec1b">
-
 Upon examining the provided image, it becomes evident that our Time Difference of Arrival (TDoA) calculation necessitates several constants. These constants encompass the coordinates of three sensors, in addition to the propagation speed. Furthermore, the process involves the reception of data from the firmware, which comprises three essential components: 'id,' defining the origin sensor transmitting the data; 'event_ts,' establishing the reference time for said sensor, crucial for synchronization and time difference calculation; and 'sync_ts,' delineating three distinct time instances, representing the moments of signal reception from all three sensors, including the sensor transmitting the data.
 
 ![image](https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/3fdd88e3-e132-4472-8460-0c29c333a7b6)
@@ -100,7 +98,17 @@ Given the spatial separation of three individual sensors, the implementation of 
 Under conditions where the sensors and the server computer coexist within the same Wi-Fi network, the server component becomes capable of receiving 'POST' method requests from the sensors. It proceeds to save the transmitted data, adhering to designated keys such as 'id,' 'event_ts,' and 'sync_ts.' Upon reaching the predetermined count constant 'real_received_length' of three, the server triggers the execution of functions responsible for computing delta_t and subsequently estimating the source location based on the collated data lists.
 
 # 4. Evaluation and Results
+The primary objective of this project is to demonstrate the attainment of precise estimations for the event source. This is accomplished through a series of sequential evaluation:
+  * The error-free delivery of data by the firmware.
+  * The successful reception of POST requests by the host and the accurate preservation of the corresponding payload.
+  * The congruence between the calculated delta_t values and those manually derived through conventional methods.
+  * The functionality of the Time Difference of Arrival (TDOA) functions in delivering a reasonable and plausible estimated coordinate for the event source.
 
+The initial two evaluations indicate successful functionality of the firmware and effective communication between each sensor and the server. The transmitted payloads are appropriately and accurately stored within the server's database. An illustrative example involves setting the coordinates of the three sensors as [0,0], [-0.39, 0.26], and [-0.74, 0] respectively, while considering a propagation speed of 340 units. Furthermore, these sensors are programmed to sample at a frequency of 44100 Hz. The data received by the server is outlined below:
+
+<img width="537" alt="截屏2023-12-13 14 12 19" src="https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/1840686d-d280-45f6-b560-bee1d0d8ec1b">
+
+The program calculated delta_t is 
 # 5. Discussion and Conclusions
 
 # 6. References
