@@ -80,11 +80,22 @@ This project is based on two seperate components, the firmware and the software.
 
 ### 3.a. Firmware
 
-### 3.b. Software
-This project untilized the Time Difference of Arrival (TDOA) method to localize the source. TDoA is a technique used to determine the location of a sound source by measuring the time difference of arrival of the sound waves at different sensors.It calculates the distance difference through time delay, then utilize the distance difference and the spatial geometric positions of the sensors to determine the location of the sound source.
+### 3.b. Server
+
+### 3.b. TDOA
+
 ![image](https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/336e29f1-7dd7-4895-abc0-f2017efa4993)
-Based on the image above, it is easily to see that our TDOA calculation requires the constant: the coordinates of three sensors, the propagation speed. Besides, it also receives the data from the firmware, and the data consists of three parts: "id" defines which sensor sent this data; "event_ts" defines the reference time for this sensor, and it will be used to synchronize and calculate the time difference; "sync_ts" defines three time spots, and they stands for the time receiving the signals sent from all three sensors(including itself). 
+
+This project employed the Time Difference of Arrival (TDoA) method for source localization. TDoA constitutes a technique utilized to ascertain the whereabouts of a sound source by measuring the time variance in the arrival of sound waves at distinct sensors. It involves the calculation of distance disparities via time delays, subsequently leveraging these differences alongside the spatial geometric positions of the sensors to precisely determine the location of the sound source.
+
 <img width="537" alt="截屏2023-12-13 14 12 19" src="https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/1840686d-d280-45f6-b560-bee1d0d8ec1b">
+
+Upon examining the provided image, it becomes evident that our Time Difference of Arrival (TDoA) calculation necessitates several constants. These constants encompass the coordinates of three sensors, in addition to the propagation speed. Furthermore, the process involves the reception of data from the firmware, which comprises three essential components: 'id,' defining the origin sensor transmitting the data; 'event_ts,' establishing the reference time for said sensor, crucial for synchronization and time difference calculation; and 'sync_ts,' delineating three distinct time instances, representing the moments of signal reception from all three sensors, including the sensor transmitting the data.
+
+![image](https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/3fdd88e3-e132-4472-8460-0c29c333a7b6)
+
+The collected data serves as the foundation for computing the time differences between each pair of sensors. Utilizing the known disparities in arrival times between two points, we can delineate the potential event locations through hyperbolic descriptions. To resolve these functions and estimate the event's location, I intend to employ scipy’s least-squares solver. Enhancing the solver's efficiency involves specifying the Jacobian matrix of this system, and this is just a collection of the partial derivatives of each function with respect to each independent variable. As a preliminary step before solving, an initial approximation for the event's location can be established by averaging the positions of the three observers. This approach mitigates issues related to undefined functions for specific points. Ultimately, the estimated location of the event will be obtained through this procedure.
+
 
 # 4. Evaluation and Results
 
