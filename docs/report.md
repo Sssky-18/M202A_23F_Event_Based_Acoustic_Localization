@@ -141,6 +141,16 @@ Lastly, we have to the check the program can provide an estimated coordinates st
 As previously outlined, our objective revolves around attaining a precise estimation for the event source location. Given that the observed differences in distance range between 0.01 to 0.07 units, and considering the spatial separation of our sensors, which ranges from 0.26 to 0.74 units, the estimated location derived can be deemed both reasonable and acceptable, but requiring more improvement to lower the deviation. The consistency between the calculated distances and the spatial layout of the sensors further validates the plausibility of the estimated location.
 
 # 5. Discussion and Conclusions
+The achieved results thus far are deemed acceptable but not yet perfect, indicating a necessity for comprehensive improvements in both firmware and software components.
 
+Regarding the firmware, enhancing its precision in event detection stands as a crucial objective. Presently, our approach relies on a simplistic threshold mechanism to identify events, where any pulse surpassing this threshold is marked as an event occurrence. To augment accuracy, incorporating signal filtering mechanisms becomes imperative. Real-world scenarios introduce various sources of noise that may result in sensors providing inaccurate information. Enhancing the firmware with signal filters will mitigate such inaccuracies, thereby refining the initial step of the entire process and contributing to a more accurate program output.
+
+On the software front, further refinement of both the server and TDOA functions is paramount. The current server implementation operates under the assumption of complete and sufficient data for analysis. However, it lacks the capability to handle incomplete or insufficient data, such as scenarios where a sensor transmits a sync_ts list containing fewer than three data points. Consequently, a crucial step involves data validation, ensuring the data's adequacy before applying it to TDOA estimations.
+
+Additionally, while the estimated results show promise, a notable deviation from the actual location persists. Therefore, continued enhancements in the estimation process hold significance. These refinements aim to improve the estimation algorithm, thereby facilitating the derivation of more accurate and precise results.
+
+In conclusion, this project offers a solution aimed at transforming any surface into a touchboard utilizing three independent acoustic sensors, leveraging the Time Difference of Arrival (TDOA) methodology. Through these sensors, the firmware successfully transmits requisite information via a Wi-Fi network to the server computer. The program adeptly computes accurate time differences and furnishes a reasonable estimated location for the event source.
+
+This endeavor represents a significant step towards achieving synchronization among sensors while establishing a host server for seamless inter-device communication. Although the results obtained showcase notable progress, it's important to note that they are not flawless and warrant further enhancements to achieve heightened accuracy in estimation.
 
 # 6. References
