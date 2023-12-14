@@ -108,14 +108,25 @@ The initial two evaluations indicate successful functionality of the firmware an
 
 <img width="537" alt="截屏2023-12-13 14 12 19" src="https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/1840686d-d280-45f6-b560-bee1d0d8ec1b">
 
-Calculating the correct delta_t is also vital for the whole estimation process. As mentioned before, TDOA requires the time difference between each pair of sensors and use it calculating distance difference and then solve the hyperbolic equations system. So an accurate delta_t list helps improve the ultimate TDOA estimation. We also manually calculate the delta_t to check whether or not our program has any errors or deviations. The result are shown below:
+Accurate determination of delta_t holds paramount importance within the entirety of the estimation process. As previously mentioned, the Time Difference of Arrival (TDOA) methodology hinges upon precise time differences between each pair of sensors. These differences are significant in calculating distance disparities and subsequently resolving the system of hyperbolic equations. Therefore, an accurately derived delta_t list significantly enhances the precision of the ultimate TDOA estimation.
+
+Moreover, we conduct manual calculations for delta_t to validate the integrity of our program, ensuring absence of errors or deviations. The resultant calculations are presented below:
 | Program Calculation | Manually Calculation  |
 | ------------------- | --------------------- |
-| t01:-4.62682E-06    | t01:-4.62682E-06      |
-| t02:9.030279E-05    | t02:9.03028E-05       |
+| t01: -4.62682E-06   | t01: -4.62682E-06     |
+| t02: 9.030279E-05   | t02: 9.03028E-05      |
 | t12: 0.00051        | t12: 0.00051          |
 
 The negative number for t01 means the sensor with id = 1 receiving the signal ealier than the sensor with id= 0. We can tell from above table that the program calculates perfect delta_t list. 
+
+Lastly, we have to the check the program can provide an estimated coordinates standing for the event location. We also need to check the deviation between the estimated result and the actual location. After inputing the sensors' coordinates, propagation speed, and delta_t into the TDOA function, it builds up a hyperbolic system as well as the jacobian list. Within one second, it provides the estimated location for the source -- [-0.3310, -0.0164], and our event happened on the coordinate[-0.4, 0]. 
+
+| axis | Source  | estimated Source | Standard Deviation  | Diff in Distance |
+| ---- | ------- | ---------------- | ------------------- | ---------------- |
+|  x   |  -0.4   |    -0.3310       |       0.0345        |      0.0690      | 
+|  y   |    0    |    -0.0164       |       0.0082        |      0.0164      |
+
+
 
 
 # 5. Discussion and Conclusions
