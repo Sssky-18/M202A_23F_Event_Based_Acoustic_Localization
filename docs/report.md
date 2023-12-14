@@ -108,7 +108,16 @@ The initial two evaluations indicate successful functionality of the firmware an
 
 <img width="537" alt="截屏2023-12-13 14 12 19" src="https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/1840686d-d280-45f6-b560-bee1d0d8ec1b">
 
-The program calculated delta_t is 
+Calculating the correct delta_t is also vital for the whole estimation process. As mentioned before, TDOA requires the time difference between each pair of sensors and use it calculating distance difference and then solve the hyperbolic equations system. So an accurate delta_t list helps improve the ultimate TDOA estimation. We also manually calculate the delta_t to check whether or not our program has any errors or deviations. The result are shown below:
+| Program Calculation | Manually Calculation  |
+| ------------------- | --------------------- |
+| t01:-4.62682E-06    | t01:-4.62682E-06      |
+| t02:9.030279E-05    | t02:9.03028E-05       |
+| t12: 0.00051        | t12: 0.00051          |
+
+The negative number for t01 means the sensor with id = 1 receiving the signal ealier than the sensor with id= 0. We can tell from above table that the program calculates perfect delta_t list. 
+
+
 # 5. Discussion and Conclusions
 
 # 6. References
