@@ -11,7 +11,7 @@ Key tasks:
 * Haochen Zhao: protocol design
 * Tianyuan Nan: time difference calculation and correction
 * Tianyuan Nan: TDOA algorithm program and testing
-* Tianyuan Nan: build host server for data receiving
+* Tianyuan Nan: host server setup for data receiving
 * Tianyuan Nan: github report and project website maintenance
 
 
