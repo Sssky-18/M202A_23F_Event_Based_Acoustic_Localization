@@ -121,6 +121,7 @@ The initial two evaluations indicate successful functionality of the firmware an
 Accurate determination of delta_t holds paramount importance within the entirety of the estimation process. As previously mentioned, the Time Difference of Arrival (TDOA) methodology hinges upon precise time differences between each pair of sensors. These differences are significant in calculating distance disparities and subsequently resolving the system of hyperbolic equations. Therefore, an accurately derived delta_t list significantly enhances the precision of the ultimate TDOA estimation.
 
 Moreover, we conduct manual calculations for delta_t to validate the integrity of our program, ensuring absence of errors or deviations. The resultant calculations are presented below:
+
 | Program Calculation | Manually Calculation  |
 | ------------------- | --------------------- |
 | t01: -4.62682E-06   | t01: -4.62682E-06     |
