@@ -97,7 +97,7 @@ This project is based on two seperate components, the firmware and the software.
 
 The firmware part is responsible to control the hardwares to listen to events and transmit syncronization signal when necessary. It is also responsible to maintain an internal clock to be able to tag the touch event and syncronization events. The information should be transmitted to the host computer through wifi.
 
-The internal clock is created with reference to the sampling process of the microphone. The microphone is sampling at 44.1kHz. The internal clock is created by counting the number of samples. The internal clock is used to tag the touch event and syncronization events. 
+The internal event clock is created with reference to the sampling process of the microphone. The microphone is sampling at 44.1kHz. The internal clock is created by counting the number of samples. The internal clock is used to tag the touch event and syncronization events. 
 
 The touch event detection is done by comparing the sample with a threshold. If the sample is above the threshold, it is considered as a touch event. The threshold is determined by the noise level of the environment with some margin. The timestamp of the touch event is the timestamp of the sample with the maximum value.
 
