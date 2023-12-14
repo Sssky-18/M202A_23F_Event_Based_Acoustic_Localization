@@ -1,5 +1,6 @@
 # Group Members:
 Haochen Zhao and Tianyuan Nan
+
 Haochen Zhao will be focusing on the hardware and protocol part. Tianyuan Nan will be focusing on the algorithm and github part. We will work together on the demo.
 
 Key tasks:
