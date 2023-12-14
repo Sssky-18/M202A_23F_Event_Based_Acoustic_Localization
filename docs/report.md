@@ -80,6 +80,18 @@ This project is based on two seperate components, the firmware and the software.
 
 ### 3.a. Firmware
 
+The firmware part is responsible to control the hardwares to listen to events and transmit syncronization signal when necessary. It is also responsible to maintain an internal clock to be able to tag the touch event and syncronization events. The information should be transmitted to the host computer through wifi.
+
+The internal clock is created with reference to the sampling process of the microphone. The microphone is sampling at 44.1kHz. The internal clock is created by counting the number of samples. The internal clock is used to tag the touch event and syncronization events. 
+
+The touch event detection is done by comparing the sample with a threshold. If the sample is above the threshold, it is considered as a touch event. The threshold is determined by the noise level of the environment with some margin. The timestamp of the touch event is the timestamp of the sample with the maximum value.
+
+After the touch event is detected, the device will send a syncronization signal to other devices. The syncronization signal is a short burst of sound. We use a sinc pulse with cutoff frequency of 8kHz. The timestamp of the syncronization signal is the timestamp of the sample with the maximum value. Each device has a different syncronization offset from the touch event. Every device is expected to receive its own sync event and sync sequences from other devices. In this way the time offsets between devices can be measured.
+
+After all timestamps (1 event+ 3 syncronization) have been collected, the device will send the information to the host computer through wifi. The information includes the device id, the timestamp of the touch event, the three timestamps of the syncronization events. The data is serialized in json format. The string will be sent to the host using HTTP POST for further processing.
+
+<img width="537" alt="sync timeline" src="media/sync_timeline.png">
+
 ### 3.b. TDOA
 
 ![image](https://github.com/Sssky-18/M202A_23F_Event_Based_Acoustic_Localization/assets/73833864/336e29f1-7dd7-4895-abc0-f2017efa4993)
