@@ -153,17 +153,17 @@ This endeavor represents a significant step towards achieving synchronization am
 
 # 6. References
  
-Arvind Seshan.[ALTo: Ad Hoc High-Accuracy Touch Interaction Using Acoustic Localization] arXiv:2108.06837 (https://arxiv.org/abs/2108.06837)
+[1] Arvind Seshan.[ALTo: Ad Hoc High-Accuracy Touch Interaction Using Acoustic Localization] arXiv:2108.06837 (https://arxiv.org/abs/2108.06837)
 
-Jun Gong, Aakar Gupta, Hrvoje Benko.[Acustico: Surface Tap Detection and Localization using Wrist-based Acoustic TDOA Sensing] October 2020 (https://dl.acm.org/doi/10.1145/3379337.3415901)
+[2] Jun Gong, Aakar Gupta, Hrvoje Benko.[Acustico: Surface Tap Detection and Localization using Wrist-based Acoustic TDOA Sensing] October 2020 (https://dl.acm.org/doi/10.1145/3379337.3415901)
 
-Peng Wu, Shaojing Su, Zhen Zuo, Xiaojun Guo, Bei Sun, Xudong Wen [Time Difference of Arrival (TDoA) Localization Combining Weighted Least Squares and Firefly Algorithm] June 2019 (https://www.mdpi.com/1424-8220/19/11/2554)
+[3] Peng Wu, Shaojing Su, Zhen Zuo, Xiaojun Guo, Bei Sun, Xudong Wen [Time Difference of Arrival (TDoA) Localization Combining Weighted Least Squares and Firefly Algorithm] June 2019 (https://www.mdpi.com/1424-8220/19/11/2554)
 
-Robert Xiao, Greg Lew, James Marsanico, Divya Hariharan, Scott Hudson, Chris Harrison.[Toffee: enabling ad hoc, around-device interaction with acoustic time-of-arrival correlation] September 2014 (https://dl.acm.org/doi/10.1145/2628363.2628383)
+[4] Robert Xiao, Greg Lew, James Marsanico, Divya Hariharan, Scott Hudson, Chris Harrison.[Toffee: enabling ad hoc, around-device interaction with acoustic time-of-arrival correlation] September 2014 (https://dl.acm.org/doi/10.1145/2628363.2628383)
 
-Travis Mick.[A demonstration of TDOA multilateration] February 20, 2022 (https://lo.calho.st/posts/tdoa-multilateration/)
+[5] Travis Mick.[A demonstration of TDOA multilateration] February 20, 2022 (https://lo.calho.st/posts/tdoa-multilateration/)
 
-Dalton Harmsen [tdoa-demo] (https://github.com/dharmsen/tdoa-demo/tree/master)
+[6] Dalton Harmsen [tdoa-demo] (https://github.com/dharmsen/tdoa-demo/tree/master)
 
-Rubber Duck [TDoA Method for Sound Localization] April 2023 (https://codepal.ai/rubber-duck/query/hBGnS9QC/tdoa-method-for-sound-localization)
+[7] Rubber Duck [TDoA Method for Sound Localization] April 2023 (https://codepal.ai/rubber-duck/query/hBGnS9QC/tdoa-method-for-sound-localization)
 
