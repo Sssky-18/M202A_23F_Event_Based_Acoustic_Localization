@@ -14,7 +14,7 @@ import scipy.optimize as opt
 # {sync_ts}
 
 app = Flask(__name__)
-COORD = [[0,0], [-0.39,0.26], [-0.74,0]]
+COORD = [[0,0], [-0.30,0.18], [-0.60,0]]
 V = 340
 F = 44100
 
@@ -172,7 +172,7 @@ def post_json():
         sync_ts = posted_data.get('sync_ts')
         sync_et_list[id] = event_ts
         sync_ts_list[id] = sync_ts
-        print("received:", sync_ts_list)
+        # print("received:", sync_ts_list)
         real_receive_length=real_receive_length+1
 
         if real_receive_length == 3:
