@@ -58,25 +58,25 @@ In ALTo, the time difference of arrival of the event's acoustic signal at a bunc
 
 ### 1.c. Novelty & Rationale
 
-We want to use a bunch of independent devices to infer touch location on a large surface. We want to design a protocol between devices to allow them localize the event. We build on some previous works with centralized way of doing this. We do not foresee any theoretical challenge in doing this. But it remains an interesting topic how to do it in an efficient way.
+Our objective pertains to utilizing a collection of independent devices to deduce touch locations on a large surface. The intention is to formulate an inter-device protocol conducive to event localization. To facilitate this, we have established a server host capable of interfacing with three sensors via a Wi-Fi network, enabling data transmission and reception. Subsequently, a comprehensive Time-Difference of Arrival (TDOA) function has been meticulously developed. This function, given specific parameters and time disparities, empowers our program to reasonably estimate the spatial origin of the event.
 
 ### 1.d Potential Impact
 
-We will have better understanding in time synchronization (Haochen's part) and localization (Tianyuan's part). Also this may result in a working app on smart phones that can turn any surface into a touch sensor.
+We will have better understanding in time synchronization (Haochen's part) and localization (Tianyuan's part). Also this provides a new way to locate the acoustic source using independent sensors, as well as a more accurate way to solve for the TDOA hyperbolic equations.
 
 ### 1.5. Challenges
 
-The audio kit we sourced uses MEMS microphone and small speaker. This may impair the ability to capture event and the ability to propagate information. If this is indeed an issue, we plan to make everything louder.
+The audio kit we sourced uses MEMS microphone and small speaker. This may impair the ability to capture event and the ability to propagate information. If this is indeed an issue, we plan to make everything louder. Accurately determining the event source presents another significant challenge. A lack of precise time differences between sensors cause the program encountering considerable difficulty in solving the hyperbolic equation effectively. Addressing this challenge requires enhancements in both sensor capabilities and algorithmic methodologies. It becomes imperative to contemplate strategies for enhancing the clarity of event signal detection and devising a novel optimization function tailored to resolve the Time-Difference of Arrival (TDOA) equations more effectively.
 
 ### 1.e. Requirements for Success
 
-For the hardware development, we need to plan well to allow stable capture of sound to ensure correct timestamping. This requires skills in realtime system developing.
+Regarding hardware development, meticulous planning is imperative to enable consistent and stable sound capture, ensuring precise timestamping accuracy. This necessitates adeptness in real-time system development to achieve optimal results.
 
-For the software part, we need to design a protocol to allow devices to sync with each other. We also need to implement the algorithm to solve for the location.
+On the software front, meticulous attention must be given to designing a robust protocol facilitating seamless synchronization among devices. These interconnected devices must communicate flawlessly with a host server, devoid of any errors. Moreover, the implementation of an algorithm to estimate location is essential. The resulting estimated source location must align reasonably with the actual location, necessitating minimal deviation for optimal accuracy.
 
 ### 1.f. Metrics of Success
 
-We aim to get a working demo to present. On the demo we can measure accuracy. If that failed, we fallback to demo timestamping same acoustic event on different devices.
+Our objective revolves around establishing a robust hardware infrastructure capable of efficiently delivering data to the host system. Subsequently, the host system must effectively relay this data to the Time-Difference of Arrival (TDOA) functions. These TDOA functions are then tasked with computing and furnishing an estimated location of the event source based on the received data.
 
 # 2. Related Work
 ### 2.a. Papers
