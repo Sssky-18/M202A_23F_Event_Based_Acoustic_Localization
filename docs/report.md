@@ -5,14 +5,14 @@ Haochen Zhao will be focusing on the hardware and protocol part. Tianyuan Nan wi
 
 Key tasks:
 
-Haochen Zhao: audio capture routine
-Haochen Zhao: audio playback routine (for sync using sound)
-Haochen Zhao: acoutic event timestamping
-Haochen Zhao: protocol design
-Tianyuan Nan: time difference calculation and correction   
-Tianyuan Nan: TDOA algorithm program and testing
-Tianyuan Nan: build host server for data receiving 
-Tianyuan Nan: github report and project website maintenance
+* Haochen Zhao: audio capture routine
+* Haochen Zhao: audio playback routine (for sync using sound)
+* Haochen Zhao: acoutic event timestamping
+* Haochen Zhao: protocol design
+* Tianyuan Nan: time difference calculation and correction
+* Tianyuan Nan: TDOA algorithm program and testing
+* Tianyuan Nan: build host server for data receiving
+* Tianyuan Nan: github report and project website maintenance
 
 
 # Table of Contents
