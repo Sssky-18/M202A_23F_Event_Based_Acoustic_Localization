@@ -126,9 +126,9 @@ Lastly, we have to the check the program can provide an estimated coordinates st
 |  x   |  -0.4   |    -0.3310       |       0.0345        |      0.0690      | 
 |  y   |    0    |    -0.0164       |       0.0082        |      0.0164      |
 
-
-
+As previously outlined, our objective revolves around attaining a precise estimation for the event source location. Given that the observed differences in distance range between 0.01 to 0.07 units, and considering the spatial separation of our sensors, which ranges from 0.26 to 0.74 units, the estimated location derived can be deemed both reasonable and acceptable, but requiring more improvement to lower the deviation. The consistency between the calculated distances and the spatial layout of the sensors further validates the plausibility of the estimated location.
 
 # 5. Discussion and Conclusions
+
 
 # 6. References
