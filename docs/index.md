@@ -12,6 +12,6 @@ After conducting the experiment, the firmware effectively transmits the necessar
 # Required Submissions
 
 * [Proposal](proposal.md)
-* [Midterm Checkpoint Presentation Slides](docs/media/Mid_Slides.pdf)
+* [Midterm Checkpoint Presentation Slides](media/Mid_Slides.pdf)
 * [Final Presentation Slides](http://)
 * [Final Report](report.md)
