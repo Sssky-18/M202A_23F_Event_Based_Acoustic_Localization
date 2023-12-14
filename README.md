@@ -5,6 +5,6 @@ How well can we localize an event using only the time difference of arrival (TDO
 
 * [Index](docs/index.md)
 * [Proposal](docs/proposal.md)
-* [Midterm Checkpoint Presentation Slides](Event Based Acoustic Location.pdf)
+* [Midterm Checkpoint Presentation Slides](docs/media/Mid_Slides.pdf)
 * [Final Presentation Slides](http://)
 * [Final Report](docs/report.md)
