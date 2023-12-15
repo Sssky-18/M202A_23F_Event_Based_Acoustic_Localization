@@ -161,6 +161,8 @@ As previously outlined, our objective revolves around attaining a precise estima
 
 We employ this dataset as an illustrative example to elucidate our evaluation methodology. Following multiple experiments conducted within the triangular area, we observed a maximum distance discrepancy of 0.131 units and a minimum of 0.0164 units. Although our estimated location demonstrates proximity to the actual position, noticeable deviation is apparent, necessitating further enhancements on both the hardware and software fronts for refinement and accuracy improvement. 
 
+Currently we are experiencing difficulty in accurately estimating events occurring not within the central region inside the three sensors. This is due to the lack of precise timestamps provided by the sensors. We will discuss possible way to improve the accuracy in the next section.
+
 # 5. Discussion and Conclusions
 The achieved results thus far are deemed acceptable but not yet perfect, indicating a necessity for comprehensive improvements in both firmware and software components.
 
