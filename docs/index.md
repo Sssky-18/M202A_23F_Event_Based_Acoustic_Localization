@@ -13,5 +13,5 @@ After conducting the experiment, the firmware effectively transmits the necessar
 
 * [Proposal](proposal.md)
 * [Midterm Checkpoint Presentation Slides](media/Mid_Slides.pdf)
-* [Final Presentation Slides](http://)
+* [Final Presentation Slides](media/Final_Slide_Event_Based_Acoustic_Location.pdf)
 * [Final Report](report.md)
