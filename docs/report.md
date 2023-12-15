@@ -159,16 +159,7 @@ Lastly, we have to the check the program can provide an estimated coordinates st
 
 As previously outlined, our objective revolves around attaining a precise estimation for the event source location. Given that the observed differences in distance range between 0.01 to 0.07 units, and considering the spatial separation of our sensors, which ranges from 0.26 to 0.74 units, the estimated location derived can be deemed both reasonable and acceptable, but requiring more improvement to lower the deviation. The consistency between the calculated distances and the spatial layout of the sensors further validates the plausibility of the estimated location.
 
-We also made several experiments, other experiment result are shown here:
-
-| axis | Source  | estimated Source | Diff in Distance |
-| ---- | ------- | ---------------- | ---------------- |
-|  x   |  -0.5   |    -0.6212       |      0.1212      | 
-|  y   |  0.08   |    -0.0376       |      0.0424      |
-|  x   | -0.45   |    -0.4871       |      0.0371      | 
-|  y   |  0.15   |    -0.0430       |      0.1070      |
-
-Based on the table here, the maximum difference in distance is 0.1212 and the lowest is 0.0164. Our estimated location is reasonably closed to the actual location.  
+We employ this dataset as an illustrative example to elucidate our evaluation methodology. Following multiple experiments conducted within the triangular area, we observed a maximum distance discrepancy of 0.131 units and a minimum of 0.0164 units. Although our estimated location demonstrates proximity to the actual position, noticeable deviation is apparent, necessitating further enhancements on both the hardware and software fronts for refinement and accuracy improvement. 
 
 # 5. Discussion and Conclusions
 The achieved results thus far are deemed acceptable but not yet perfect, indicating a necessity for comprehensive improvements in both firmware and software components.
