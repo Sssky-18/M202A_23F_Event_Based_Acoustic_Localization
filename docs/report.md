@@ -125,6 +125,8 @@ Given the spatial separation of three individual sensors, the implementation of 
 Under conditions where the sensors and the server computer coexist within the same Wi-Fi network, the server component becomes capable of receiving 'POST' method requests from the sensors. It proceeds to save the transmitted data, adhering to designated keys such as 'id,' 'event_ts,' and 'sync_ts.' Upon reaching the predetermined count constant 'real_received_length' of three, the server triggers the execution of functions responsible for computing delta_t and subsequently estimating the source location based on the collated data lists.
 
 # 4. Evaluation and Results
+Considering the constraints imposed by hardware limitations, our project encounters difficulty in accurately estimating events occurring beyond the boundaries of the triangular area delineated by the three sensors. When events transpire outside this defined area, the timestamps provided by the three sensors lack precision. Consequently, we opt to utilize a singular point situated within the triangular region as a reference to evaluate and assess the resultant estimations.
+
 The primary objective of this project is to demonstrate the attainment of precise estimations for the event source. This is accomplished through a series of sequential evaluation:
   * The error-free delivery of data by the firmware.
   * The successful reception of POST requests by the host and the accurate preservation of the corresponding payload.
@@ -156,6 +158,17 @@ Lastly, we have to the check the program can provide an estimated coordinates st
 |  y   |    0    |    -0.0164       |       0.0082        |      0.0164      |
 
 As previously outlined, our objective revolves around attaining a precise estimation for the event source location. Given that the observed differences in distance range between 0.01 to 0.07 units, and considering the spatial separation of our sensors, which ranges from 0.26 to 0.74 units, the estimated location derived can be deemed both reasonable and acceptable, but requiring more improvement to lower the deviation. The consistency between the calculated distances and the spatial layout of the sensors further validates the plausibility of the estimated location.
+
+We also made several experiments, other experiment result are shown here:
+
+| axis | Source  | estimated Source | Diff in Distance |
+| ---- | ------- | ---------------- | ---------------- |
+|  x   |  -0.5   |    -0.6212       |      0.1212      | 
+|  y   |  0.08   |    -0.0376       |      0.0424      |
+|  x   | -0.45   |    -0.4871       |      0.0371      | 
+|  y   |  0.15   |    -0.0430       |      0.1070      |
+
+Based on the table here, the maximum difference in distance is 0.1212 and the lowest is 0.0164. Our estimated location is reasonably closed to the actual location.  
 
 # 5. Discussion and Conclusions
 The achieved results thus far are deemed acceptable but not yet perfect, indicating a necessity for comprehensive improvements in both firmware and software components.
