@@ -64,17 +64,17 @@ Our objective pertains to utilizing a collection of independent devices to deduc
 
 We will have better understanding in time synchronization (Haochen's part) and localization (Tianyuan's part). Also this provides a new way to locate the acoustic source using independent sensors, as well as a more accurate way to solve for the TDOA hyperbolic equations.
 
-### 1.5. Challenges
+### 1.e. Challenges
 
 The audio kit we sourced uses MEMS microphone and small speaker. This may impair the ability to capture event and the ability to propagate information. If this is indeed an issue, we plan to make everything louder. Accurately determining the event source presents another significant challenge. A lack of precise time differences between sensors cause the program encountering considerable difficulty in solving the hyperbolic equation effectively. Addressing this challenge requires enhancements in both sensor capabilities and algorithmic methodologies. It becomes imperative to contemplate strategies for enhancing the clarity of event signal detection and devising a novel optimization function tailored to resolve the Time-Difference of Arrival (TDOA) equations more effectively.
 
-### 1.e. Requirements for Success
+### 1.f. Requirements for Success
 
 Regarding hardware development, meticulous planning is imperative to enable consistent and stable sound capture, ensuring precise timestamping accuracy. This necessitates adeptness in real-time system development to achieve optimal results.
 
 On the software front, meticulous attention must be given to designing a robust protocol facilitating seamless synchronization among devices. These interconnected devices must communicate flawlessly with a host server, devoid of any errors. Moreover, the implementation of an algorithm to estimate location is essential. The resulting estimated source location must align reasonably with the actual location, necessitating minimal deviation for optimal accuracy.
 
-### 1.f. Metrics of Success
+### 1.g. Metrics of Success
 
 Our objective revolves around establishing a robust hardware infrastructure capable of efficiently delivering data to the host system. Subsequently, the host system must effectively relay this data to the Time-Difference of Arrival (TDOA) functions. These TDOA functions are then tasked with computing and furnishing an estimated location of the event source based on the received data.
 
